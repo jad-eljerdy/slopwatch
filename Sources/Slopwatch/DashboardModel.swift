@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import Sparkle
 
 @MainActor @Observable
 final class DashboardModel {
@@ -8,6 +9,7 @@ final class DashboardModel {
     var provider: Provider?
     var refreshing = false
     let engine = UsageEngine()
+    var updater: SPUStandardUpdaterController?
     private var refreshTask: Task<Void, Never>?
 
     init() {

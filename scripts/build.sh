@@ -5,6 +5,10 @@ swift build -c release "$@"
 bin=$(swift build -c release "$@" --show-bin-path)
 app="$PWD/dist/Slopwatch.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+sparkle="$PWD/.build/artifacts/slopwatch/Sparkle"
+mkdir -p "$app/Contents/Frameworks"
+/usr/bin/ditto "$sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework" "$app/Contents/Frameworks/Sparkle.framework"
+install -m 644 "$sparkle/LICENSE" "$app/Contents/Resources/Sparkle-LICENSE.txt"
 install -m 755 "$bin/Slopwatch" "$app/Contents/MacOS/Slopwatch"
 install -m 644 Support/Info.plist "$app/Contents/Info.plist"
 install -m 644 Sources/Slopwatch/Resources/rates.tsv Support/claude-statusline.sh "$app/Contents/Resources/"
@@ -19,5 +23,5 @@ for size in 16 32 128 256 512; do
 done
 /usr/bin/iconutil -c icns "$iconset" -o "$app/Contents/Resources/Slopwatch.icns"
 /usr/bin/codesign --force --sign - --timestamp=none "$app"
-/usr/bin/codesign --verify --strict "$app"
+/usr/bin/codesign --verify --deep --strict --all-architectures "$app"
 echo "$app"

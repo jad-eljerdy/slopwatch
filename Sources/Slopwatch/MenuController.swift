@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Sparkle
 
 @MainActor
 final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
@@ -23,6 +24,9 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popover.behavior = .transient
         popover.animates = false
         popover.delegate = self
+        if Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil {
+            model.updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+        }
         model.refresh()
         startPolling()
     }

@@ -1,4 +1,5 @@
 import SwiftUI
+import Sparkle
 
 struct DashboardFooter: View {
     let model: DashboardModel
@@ -25,6 +26,17 @@ struct DashboardFooter: View {
                 .buttonStyle(.plain).disabled(model.refreshing).help("Refresh usage (⌘R)")
                 .keyboardShortcut("r").accessibilityLabel("Refresh usage")
             Menu {
+                if let controller = model.updater {
+                    Button("Check for Updates…") { controller.checkForUpdates(nil) }
+                    Toggle("Update Automatically", isOn: Binding(
+                        get: { controller.updater.automaticallyChecksForUpdates && controller.updater.automaticallyDownloadsUpdates },
+                        set: { enabled in
+                            controller.updater.automaticallyChecksForUpdates = enabled
+                            controller.updater.automaticallyDownloadsUpdates = enabled
+                        }
+                    ))
+                    Divider()
+                }
                 Button("Quit Slopwatch") { NSApp.terminate(nil) }.keyboardShortcut("q")
             } label: { Image(systemName: "ellipsis.circle") }
                 .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().accessibilityLabel("Slopwatch options")
