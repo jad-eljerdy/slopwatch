@@ -7,7 +7,6 @@ final class DashboardModel {
     var interval: Interval
     var provider: Provider?
     var refreshing = false
-    var info: String?
     let engine = UsageEngine()
     private var refreshTask: Task<Void, Never>?
 
