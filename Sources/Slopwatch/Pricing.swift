@@ -1,0 +1,23 @@
+import Foundation
+
+struct Rate: Sendable {
+    let input, read, shortWrite, longWrite, output: Double
+    let rule: String
+}
+
+struct Pricing: Sendable {
+    let models: [String: Rate]
+
+    init(table: String) {
+        var entries: [String: Rate] = [:]
+        for line in table.split(whereSeparator: \.isNewline) where !line.hasPrefix("#") {
+            let fields = line.split(separator: "\t")
+            guard fields.count == 7 else { continue }
+            let values = fields[1...5].compactMap { Double($0) }
+            guard values.count == 5, values.allSatisfy({ $0.isFinite && $0 >= 0 }) else { continue }
+            entries[String(fields[0])] = Rate(input: values[0], read: values[1],
+                shortWrite: values[2], longWrite: values[3], output: values[4], rule: String(fields[6]))
+        }
+        models = entries
+    }
+}
