@@ -50,3 +50,27 @@ extension UsageEngine {
         return snapshot
     }
 }
+
+extension UsageEngine {
+    private func summarize(_ sources: [HistoryFile], now: Date) -> Snapshot {
+        var result = Snapshot(updated: now)
+        var skipped = 0
+        for provider in Provider.allCases {
+            var unique: [String: UsageEvent] = [:]
+            var quota = provider == .claude ? paths.claudeQuota() : Quota()
+            for source in sources where source.provider == provider {
+                guard let file = files[source.url.path] else { continue }
+                skipped += file.skipped
+                if file.quota.observed > quota.observed { quota = file.quota }
+                for e in file.events.values {
+                    if let old = unique[e.id], old.tokens.total > e.tokens.total ||
+                        (old.tokens.total == e.tokens.total && old.time <= e.time) { continue }
+                    unique[e.id] = e
+                }
+            }
+            result.reports[provider] = ProviderReport(periods: Activity.rollup(unique.values, now: now, prices: .standard), quota: quota)
+        }
+        if skipped > 0 { result.issues.append("\(skipped) damaged or oversized records were skipped.") }
+        return result
+    }
+}
