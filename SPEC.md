@@ -19,3 +19,7 @@ Read active and archived Codex JSONL files, including Zstandard archives when th
 Use the preceding 24 hours, 168 hours, and 720 hours. Apply the same interval to tokens, charts, and estimates. Show totals for both providers and allow inspection of each provider.
 
 Count each model response once. Exclude cached input and reasoning from additional totals when the provider already includes them. Separate normal input, cache reads, cache writes, and output for pricing.
+
+## API value
+
+Bundle a dated table of public standard API rates in USD per million tokens. Support different cache read and write rates. Show the extent of missing price coverage. Identify the estimate as a token price comparison. Subscription invoices, tool fees, and negotiated rates are outside this estimate.
