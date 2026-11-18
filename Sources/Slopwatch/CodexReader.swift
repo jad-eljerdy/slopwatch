@@ -26,3 +26,20 @@ extension FileIndex {
         events[key] = UsageEvent(id: id, time: time, model: payload["model"] as? String ?? model, tokens: tokens)
     }
 }
+
+extension FileIndex {
+    mutating func readTokenCount(_ payload: Fields, at time: Date) {
+        readQuota(payload.object("rate_limits"), at: time)
+        let info = payload.object("info")
+        let totalFields = info.object("total_token_usage")
+        let last = info.object("last_token_usage")
+        guard !totalFields.isEmpty || !last.isEmpty else { return }
+        let total = Tokens(codex: totalFields)
+        let tokens = last.isEmpty ? total.since(previous) : Tokens(codex: last)
+        if !totalFields.isEmpty { previous = total }
+        let cumulative = totalFields.count("total_tokens")
+        let key = session + "/" + (cumulative > 0 ? String(cumulative) : String(time.timeIntervalSince1970))
+        guard tokens.total > 0, events[key] == nil else { return }
+        events[key] = UsageEvent(id: key, time: time, model: model, tokens: tokens)
+    }
+}
