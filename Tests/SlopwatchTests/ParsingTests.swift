@@ -103,3 +103,11 @@ import Testing
     #expect(q.windows.first?.title == "Weekly")
     #expect(q.windows.first?.reset == Date(timeIntervalSince1970: 1000))
 }
+
+@Test func claudeCacheDates() throws {
+    let q = try #require(ClaudeQuota.cached(["cachedUsageUtilization": ["fetchedAtMs": 2000,
+        "utilization": ["five_hour": ["utilization": 0, "resets_at": "2026-11-18T13:00:00.000+00:00"]]]]))
+    #expect(q.observed == Date(timeIntervalSince1970: 2))
+    #expect(q.windows.first?.used == 0)
+    #expect(q.windows.first?.reset != nil)
+}
