@@ -26,3 +26,4 @@ gpt-5-codex	1.25	0.125	1.25	1.25	10	flat
 gpt-5	1.25	0.125	1.25	1.25	10	flat
 claude-fable-5-2	8	0.2	10	16	40	flat
 claude-mythos-5-2	8	0.2	10	16	40	flat
+claude-fable-5-1	10	0.25	12.5	20	50	flat
