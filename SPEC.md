@@ -15,3 +15,5 @@ Read the utilization snapshot in the Claude Code configuration. Support the Clau
 ## Local activity
 
 Read active and archived Codex JSONL files, including Zstandard archives when the local decoder is available. Read Claude project logs and subagent logs. Honor the configured CLI data directories.
+
+Use the preceding 24 hours, 168 hours, and 720 hours. Apply the same interval to tokens, charts, and estimates. Show totals for both providers and allow inspection of each provider.
