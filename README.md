@@ -31,3 +31,9 @@ CLI sign-in and all provider activity still belong to their respective tools. Ex
 Slopwatch reads `~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`. It honors `CODEX_HOME` and `CLAUDE_CONFIG_DIR` when the app process receives those variables. Finder launches use the Finder environment. The app finds both CLIs in `~/.local/bin`, Homebrew directories, and the process search path. Compressed Codex logs use the local `zstd` executable. The panel reports missing archive support.
 
 The usage index lives in `~/Library/Caches/local.slopwatch.app/`. It contains response identifiers, counts, timestamps, model names, quota readings, local paths, and file checkpoints. It excludes prompts and responses. Quit Slopwatch and remove that directory to rebuild the index. The optional Claude helper writes `slopwatch-limits.json` in the Claude configuration directory.
+
+## Pricing
+
+API value estimates the standard USD cost of the observed tokens. The bundled catalog is dated November 18, 2026. The estimate includes reported cache reads and writes. It uses the default retention rate when Codex omits the write duration. It excludes tools, service-tier adjustments, regional charges, and subscription fees. A plus sign marks a partial estimate. Unknown models still count toward tokens. Claude history can include API-key sessions because historical messages do not always identify the billing account.
+
+Edit [rates.tsv](Sources/Slopwatch/Resources/rates.tsv) to change a model rate. Rebuild the app to apply it. Reference rates come from [OpenAI](https://developers.openai.com/api/docs/pricing) and [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing).
