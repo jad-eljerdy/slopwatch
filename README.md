@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.1.1 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.1/Slopwatch-1.1.1.dmg)**
+**[Download Slopwatch v1.1.2 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.2/Slopwatch-1.1.2.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -20,7 +20,7 @@ The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Sl
 
 ## Updates
 
-If you use v1.0, quit the app and install the current release once. From v1.1 onward, Slopwatch checks GitHub every three days while running. Sparkle verifies the signed update feed and download. It can install the update when you quit the app. Open the options menu to check immediately or turn off automatic updates. Update checks do not send your token counts, subscription readings, or a system profile.
+If you use v1.0, quit the app and install the current release once. From v1.1 onward, Slopwatch checks GitHub every three days while running. Sparkle verifies the signed update feed and download. It can install the update when you quit the app. Select **Check for Updates…** beside the installed version to check immediately. If an update is available, Sparkle offers to install it. You can turn off automatic updates in the options menu. Update checks do not send your token counts, subscription readings, or a system profile.
 
 If an older release shows two stopwatch icons, select **… → Quit Slopwatch** from each icon. Install the current release in Applications, eject the disk image, and open the installed copy.
 

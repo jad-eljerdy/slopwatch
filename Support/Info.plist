@@ -6,8 +6,8 @@
     <key>CFBundleDisplayName</key><string>Slopwatch</string>
     <key>CFBundleExecutable</key><string>Slopwatch</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>1.1.1</string>
-    <key>CFBundleVersion</key><string>3</string>
+    <key>CFBundleShortVersionString</key><string>1.1.2</string>
+    <key>CFBundleVersion</key><string>4</string>
     <key>SUFeedURL</key><string>https://github.com/jad-eljerdy/slopwatch/releases/latest/download/appcast.xml</string>
     <key>SUPublicEDKey</key><string>wCNL3B6p8Zul9ubVTzfba9tp22jmwKRBHWseOzqVG5s=</string>
     <key>SUEnableAutomaticChecks</key><true/>
