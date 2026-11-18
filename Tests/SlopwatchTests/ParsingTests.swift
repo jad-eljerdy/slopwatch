@@ -29,3 +29,13 @@ import Testing
     f.readTokenCount(event, at: Date())
     #expect(f.events.values.map(\.tokens.total) == [40])
 }
+
+@Test func codexModelSwitch() throws {
+    var f = FileIndex()
+    f.readCodex(["type": "turn_context", "payload": ["model": "first"]], at: Date())
+    f.readResponse(["response_id": "a", "usage": ["input_tokens": 4]], at: Date())
+    f.readCodex(["type": "turn_context", "payload": ["model": "second"]], at: Date())
+    f.readResponse(["response_id": "b", "usage": ["input_tokens": 5]], at: Date())
+    #expect(f.events["a"]?.model == "first")
+    #expect(f.events["b"]?.model == "second")
+}
