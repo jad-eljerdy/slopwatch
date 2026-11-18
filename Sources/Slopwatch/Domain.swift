@@ -24,3 +24,10 @@ struct Tokens: Codable, Equatable, Sendable {
     var prompt: Int { input + read + shortWrite + longWrite }
     var total: Int { prompt + output }
 }
+
+struct UsageEvent: Codable, Sendable {
+    let id: String
+    let time: Date
+    let model: String
+    let tokens: Tokens
+}
