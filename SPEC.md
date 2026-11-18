@@ -23,3 +23,7 @@ Count each model response once. Exclude cached input and reasoning from addition
 ## API value
 
 Bundle a dated table of public standard API rates in USD per million tokens. Support different cache read and write rates. Show the extent of missing price coverage. Identify the estimate as a token price comparison. Subscription invoices, tool fees, and negotiated rates are outside this estimate.
+
+## Interface
+
+Use SwiftUI and AppKit. Provide a recognizable monochrome menu bar symbol. Place the time range, token total, API value, activity chart, and quota meters in one compact panel. Support keyboard controls, VoiceOver, light appearance, and dark appearance.
