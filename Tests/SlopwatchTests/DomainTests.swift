@@ -50,3 +50,11 @@ import Testing
     let t = Tokens(input: 15, output: 8)
     #expect(t.since(Tokens(input: 10, output: 2)) == Tokens(input: 5, output: 6))
 }
+
+@Test func windowDurations() throws {
+    #expect(windowTitle(minutes: 300) == "5-hour")
+    #expect(windowTitle(minutes: 10_080) == "Weekly")
+    #expect(windowTitle(minutes: 120) == "2-hour")
+    #expect(windowTitle(minutes: 90) == "90-minute")
+    #expect(windowTitle(minutes: nil) == "Session")
+}
