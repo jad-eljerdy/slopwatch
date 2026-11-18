@@ -52,3 +52,12 @@ import Testing
     f.readQuota(["limit_id": "extra", "primary": ["used_percent": 10]], at: Date())
     #expect(f.quota.windows.isEmpty)
 }
+
+@Test func quotaOrdering() throws {
+    var f = FileIndex()
+    let now = Date()
+    f.readQuota(["primary": ["used_percent": 30]], at: now)
+    f.readQuota(["primary": ["used_percent": 10]], at: now.addingTimeInterval(-1))
+    f.readQuota(["primary": ["used_percent": 200]], at: now.addingTimeInterval(2))
+    #expect(f.quota.windows.first?.used == 30)
+}
