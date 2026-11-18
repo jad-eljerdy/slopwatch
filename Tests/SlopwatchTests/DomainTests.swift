@@ -29,3 +29,9 @@ import Testing
     #expect(t.shortWrite == 10)
     #expect(t.longWrite == 40)
 }
+
+@Test func claudeLegacyWrites() throws {
+    let t = Tokens(claude: ["cache_creation_input_tokens": 8, "cache_read_input_tokens": 16, "input_tokens": 1, "output_tokens": 3])
+    #expect(t.total == 28)
+    #expect(t.shortWrite == 8)
+}
