@@ -17,3 +17,9 @@ import Testing
     let t = Tokens(codex: ["input_tokens": 50, "cached_input_tokens": 10, "cache_write_input_tokens": 25])
     #expect(t == Tokens(input: 15, read: 10, shortWrite: 25))
 }
+
+@Test func overreportedHits() throws {
+    let t = Tokens(codex: ["input_tokens": 2, "cached_input_tokens": 8])
+    #expect(t.read == 2)
+    #expect(t.input == 0)
+}
