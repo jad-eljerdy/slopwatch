@@ -18,7 +18,7 @@ private struct HistoryFixture {
         let file = HistoryFile(url: path, provider: .claude, modified: Date(),
             size: (attributes[.size] as? NSNumber)?.uint64Value ?? 0,
             inode: (attributes[.systemFileNumber] as? NSNumber)?.uint64Value ?? 0)
-        return try HistoryReader.read(file, previous: previous, paths: LocalPaths())
+        return try HistoryReader.read(file, previous: previous)
     }
 }
 
@@ -64,4 +64,21 @@ private struct HistoryFixture {
     let next = try f.scan(first)
     #expect(next.events.count == 1)
     #expect(next.events.values.first?.tokens.total == 7)
+}
+
+@Test func compressedCodexHistoryStreamsAcrossFrames() throws {
+    let fixture = try HistoryFixture()
+    defer { fixture.clean() }
+    // Two zstd frames split one JSONL record. Whitespace expands beyond one output buffer.
+    let archive = try #require(Data(base64Encoded: "KLUv/QRYVAAAECAgAQD7/znAAgIAECACABAg3QEANAMgeyJ0eXBlIjoiZXZlbnRfbXNnIiwidGltZXN0YW1wIjoiMjAyNi0xMS0xOFQxMjowMDoBAHzaAyFRjGEKKLUv/QRYnQIAgkQQF4A1buxK8i4nEgkkJE+jWFYIipmSFR0MQXf3DQJe8Up63vAGkGoVlLx76PmddW1R1ASWjzeJ8RveyEUs0+8EIQEFADUFoBQvcA71c7TApcok7Xbw"))
+    let path = fixture.root.appending(path: "rollout.jsonl.zst")
+    let file = HistoryFile(url: path, provider: .codex, modified: Date(),
+                           size: UInt64(archive.count), inode: 1)
+    try archive.write(to: path)
+    let index = try HistoryReader.read(file, previous: nil)
+    #expect(index.events.count == 1)
+    #expect(index.events.values.first?.tokens.total == 23)
+
+    try archive.dropLast().write(to: path)
+    #expect(throws: CocoaError.self) { try HistoryReader.read(file, previous: nil) }
 }

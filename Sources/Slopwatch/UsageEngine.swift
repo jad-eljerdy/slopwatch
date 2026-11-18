@@ -25,21 +25,19 @@ extension UsageEngine {
         var keep = Set<String>()
         var failures = discovery.failures
         var changed = false
-        var archiveMissing = false
         for file in discovery.files {
             let key = file.url.path
             keep.insert(key)
             let previous = files[key]
             if previous?.modified == file.modified, previous?.size == file.size, previous?.inode == file.inode { continue }
             do {
-                var index = try HistoryReader.read(file, previous: previous, paths: paths)
+                var index = try HistoryReader.read(file, previous: previous)
                 let cutoff = now.addingTimeInterval(-Interval.month.seconds)
                 index.events = index.events.filter { $0.value.time > cutoff }
                 files[key] = index
                 changed = true
             } catch {
                 failures += 1
-                if file.compressed && paths.executable("zstd") == nil { archiveMissing = true }
             }
         }
         if files.keys.contains(where: { !keep.contains($0) }) {
@@ -48,7 +46,6 @@ extension UsageEngine {
         }
         var snapshot = summarize(discovery.files, now: reference ?? Date())
         if failures > 0 { snapshot.issues.append("\(failures) log files or folders could not be read.") }
-        if archiveMissing { snapshot.issues.append("Install zstd to include compressed Codex history.") }
         cacheDirty = cacheDirty || changed
         if cacheDirty && now.timeIntervalSince(cacheSaved) >= 300 {
             do {

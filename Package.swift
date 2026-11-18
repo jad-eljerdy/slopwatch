@@ -4,10 +4,11 @@ import PackageDescription
 let package = Package(
     name: "Slopwatch",
     platforms: [.macOS(.v26)],
+    dependencies: [.package(url: "https://github.com/facebook/zstd.git", exact: "1.5.7")],
     targets: [
         .binaryTarget(name: "Sparkle", url: "https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-for-Swift-Package-Manager.zip",
                       checksum: "4c2e48a3e50ebcc2c88a58a4c7264a1a99c3c31857ce754357afb9cdb323022a"),
-        .executableTarget(name: "Slopwatch", dependencies: ["Sparkle"],
+        .executableTarget(name: "Slopwatch", dependencies: ["Sparkle", .product(name: "libzstd", package: "zstd")],
                           resources: [.copy("Resources/rates.tsv"), .copy("Resources/ProviderIcons")],
                           linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]),
         .testTarget(name: "SlopwatchTests", dependencies: ["Slopwatch"]),
