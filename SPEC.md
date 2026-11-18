@@ -31,3 +31,7 @@ Use SwiftUI and AppKit. Provide a recognizable monochrome menu bar symbol. Place
 ## Performance and recovery
 
 Open the panel immediately. Read files off the main thread. Reuse parsed records for unchanged files. Resume growing plain logs at the last complete line. Rebuild replaced or truncated files. Keep a bounded buffer for long records. Expose incomplete data and retry on refresh.
+
+## Privacy
+
+Process usage on this Mac. Keep the index free of conversation text, account credentials, and email addresses. Use local CLI status commands only. Disable optional CLI telemetry for those commands. Include no network client, update checker, or analytics SDK.
