@@ -16,3 +16,12 @@ struct LocalPaths: Sendable {
         return URL(filePath: path)
     }
 }
+
+extension LocalPaths {
+    func logs(for provider: Provider) -> [URL] {
+        switch provider {
+        case .codex: [codex.appending(path: "sessions"), codex.appending(path: "archived_sessions")]
+        case .claude: [claude.appending(path: "projects")]
+        }
+    }
+}
