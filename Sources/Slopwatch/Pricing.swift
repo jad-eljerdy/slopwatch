@@ -21,3 +21,11 @@ struct Pricing: Sendable {
         models = entries
     }
 }
+
+extension Pricing {
+    static let standard: Self = {
+        let url = Bundle.main.url(forResource: "rates", withExtension: "tsv")
+            ?? Bundle.module.url(forResource: "rates", withExtension: "tsv")
+        return Self(table: url.flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "")
+    }()
+}
