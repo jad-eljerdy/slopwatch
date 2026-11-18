@@ -15,11 +15,22 @@ struct SlopwatchApp {
             } catch { print(error.localizedDescription); exit(1) }
             return
         }
+        let lock: FileHandle
+        do {
+            guard let acquired = try MenuInstance.acquire() else { return }
+            lock = acquired
+        } catch {
+            NSLog("Slopwatch could not acquire the menu bar lock: %@", error.localizedDescription)
+            exit(1)
+        }
+        // Older releases do not acquire the lock. Leave their existing menu item in place.
+        let existing = NSRunningApplication.runningApplications(withBundleIdentifier: "local.slopwatch.app")
+        guard !existing.contains(where: { $0.processIdentifier != getpid() && $0.isFinishedLaunching && !$0.isTerminated }) else { return }
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
         let delegate = MenuController()
         app.delegate = delegate
-        withExtendedLifetime(delegate) { app.run() }
+        withExtendedLifetime((lock, delegate)) { app.run() }
     }
 }
 
