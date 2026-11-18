@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.0 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.0/Slopwatch-1.0.dmg)**
+**[Download Slopwatch v1.1 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1/Slopwatch-1.1.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -17,6 +17,10 @@ So I put the numbers next to the clock. Click the stopwatch. Read the numbers. C
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
 The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Slopwatch account, backend, or telemetry.
+
+## Updates
+
+If you use v1.0, quit the app and install v1.1 once. From v1.1 onward, Slopwatch checks GitHub every three days while running. Sparkle verifies the signed update feed and download. It can install the update when you quit the app. Open the options menu to check immediately or turn off automatic updates. Update checks do not send your token counts, subscription readings, or a system profile.
 
 ## Build it
 

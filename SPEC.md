@@ -34,8 +34,8 @@ Open the panel immediately. Read files off the main thread. Reuse parsed records
 
 ## Privacy
 
-Process usage on this Mac. Keep the index free of conversation text, account credentials, and email addresses. Use local CLI status commands only. Disable optional CLI telemetry for those commands. Include no network client, update checker, or analytics SDK.
+Process usage on this Mac. Keep the index free of conversation text, account credentials, and email addresses. Use the provider CLI for subscription status and limits. Disable optional CLI telemetry. Check the signed release feed on GitHub for software updates. Keep system profiling off and provide a switch for automatic updates.
 
 ## Acceptance
 
-Build a release app with the installed Apple Swift toolchain. Test both formats, duplicate records, partial files, calendar boundaries, pricing, and expired limits. Launch the signed local bundle and verify its menu bar item. Keep all Git history local.
+Build a release app with the installed Apple Swift toolchain. Test both formats, duplicate records, partial files, calendar boundaries, pricing, and expired limits. Verify the menu bar item. Verify the signature of the feed and disk image before publishing them together on GitHub.
