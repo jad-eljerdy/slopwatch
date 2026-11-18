@@ -6,6 +6,7 @@ import Sparkle
 final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let model = DashboardModel()
     private var item: NSStatusItem?
+    private var settingsWindow: NSWindow?
     private let popover = NSPopover()
     private var anchorX: CGFloat = 0
     private weak var anchorScreen: NSScreen?
@@ -50,7 +51,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         anchorX = display == nil ? pointer.x : center.x
         anchorScreen = screen
         let available = usableArea(on: screen)
-        let content = Dashboard(model: model)
+        let content = Dashboard(model: model, openSettings: openSettings)
         let root = ViewThatFits(in: .vertical) {
             content.fixedSize(horizontal: false, vertical: true)
             ScrollView { content }
@@ -65,6 +66,13 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         host.view.window?.makeKey()
         positionPopover()
+    }
+
+    private func openSettings() {
+        popover.performClose(nil)
+        if settingsWindow == nil { settingsWindow = SettingsWindow.make(model: model) }
+        NSApp.activate()
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
 
     private func usableArea(on screen: NSScreen) -> CGRect {

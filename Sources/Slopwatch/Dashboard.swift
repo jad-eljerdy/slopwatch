@@ -2,6 +2,7 @@ import SwiftUI
 
 struct Dashboard: View {
     let model: DashboardModel
+    let openSettings: () -> Void
     @State private var detail: Provider?
 
     var body: some View {
@@ -49,7 +50,7 @@ struct Dashboard: View {
                 }
             }
             Divider()
-            DashboardFooter(model: model)
+            DashboardFooter(model: model, openSettings: openSettings)
         }.padding(16)
     }
 

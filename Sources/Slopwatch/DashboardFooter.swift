@@ -3,6 +3,7 @@ import Sparkle
 
 struct DashboardFooter: View {
     let model: DashboardModel
+    let openSettings: () -> Void
     @State private var showIssues = false
 
     var body: some View {
@@ -36,15 +37,11 @@ struct DashboardFooter: View {
                 .buttonStyle(.plain).disabled(model.refreshing).help("Refresh usage (⌘R)")
                 .keyboardShortcut("r").accessibilityLabel("Refresh usage")
             Menu {
+                Button("Settings…", action: openSettings).keyboardShortcut(",")
+                Divider()
                 if let updater = model.updater {
                     Button("Check for Updates…") { updater.checkForUpdates() }
-                    Toggle("Update Automatically", isOn: Binding(
-                        get: { updater.automaticallyChecksForUpdates && updater.automaticallyDownloadsUpdates },
-                        set: { enabled in
-                            updater.automaticallyChecksForUpdates = enabled
-                            updater.automaticallyDownloadsUpdates = enabled
-                        }
-                    ))
+                    AutomaticUpdatesToggle(updater: updater, title: "Update Automatically")
                     Divider()
                 }
                 Button("Quit Slopwatch") { NSApp.terminate(nil) }.keyboardShortcut("q")
@@ -69,5 +66,23 @@ private struct AppUpdateRow: View {
                 .help("Check the signed release feed for a newer version")
         }
         .onReceive(updater.publisher(for: \.canCheckForUpdates)) { canCheck = $0 }
+    }
+}
+
+struct AutomaticUpdatesToggle: View {
+    let updater: SPUUpdater
+    let title: String
+    @State private var enabled = false
+
+    var body: some View {
+        Toggle(title, isOn: Binding(get: { enabled }, set: { value in
+            updater.automaticallyChecksForUpdates = value
+            updater.automaticallyDownloadsUpdates = value
+            enabled = value
+        }))
+        .onReceive(updater.publisher(for: \.automaticallyChecksForUpdates)
+            .combineLatest(updater.publisher(for: \.automaticallyDownloadsUpdates))) { checks, downloads in
+            enabled = checks && downloads
+        }
     }
 }
