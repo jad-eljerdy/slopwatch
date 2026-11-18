@@ -43,7 +43,7 @@ extension UsageEngine {
             files = files.filter { keep.contains($0.key) }
             changed = true
         }
-        var snapshot = summarize(discovery.files, now: now)
+        var snapshot = summarize(discovery.files, now: reference ?? Date())
         if failures > 0 { snapshot.issues.append("\(failures) log files or folders could not be read.") }
         if archiveMissing { snapshot.issues.append("Install zstd to include compressed Codex history.") }
         if changed {
