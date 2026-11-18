@@ -21,3 +21,20 @@ private struct HistoryFixture {
         return try HistoryReader.read(file, previous: previous, paths: LocalPaths())
     }
 }
+
+@Test func resumePartialJSON() throws {
+    let f = try HistoryFixture()
+    defer { f.clean() }
+    let a = f.row("a", tokens: 1)
+    let b = f.row("b", tokens: 2)
+    try Data((a + b.dropLast()).utf8).write(to: f.path)
+    let first = try f.scan()
+    #expect(first.offset == a.utf8.count)
+    let writer = try FileHandle(forWritingTo: f.path)
+    try writer.seekToEnd()
+    try writer.write(contentsOf: Data([10]))
+    try writer.close()
+    let second = try f.scan(first)
+    #expect(second.events.count == 2)
+    #expect(second.offset == a.utf8.count + b.utf8.count)
+}
