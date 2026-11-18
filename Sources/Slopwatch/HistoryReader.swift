@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 enum HistoryReader {
     static func read(_ file: HistoryFile, previous: FileIndex?, paths: LocalPaths) throws -> FileIndex {
