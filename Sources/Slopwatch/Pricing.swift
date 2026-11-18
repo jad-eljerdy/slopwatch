@@ -29,3 +29,11 @@ extension Pricing {
         return Self(table: url.flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "")
     }()
 }
+
+extension Pricing {
+    func rate(for model: String) -> Rate? {
+        if let exact = models[model] { return exact }
+        let base = model.replacingOccurrences(of: #"-\d{4}-?\d{2}-?\d{2}$"#, with: "", options: .regularExpression)
+        return models[base]
+    }
+}
