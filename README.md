@@ -1,54 +1,66 @@
 # Slopwatch
 
-Slopwatch tracks Codex and Claude Code usage in the macOS menu bar. Select the dial to see usage for the last 24 hours, 7 days, or 30 days. Select a provider to see its totals. The information button shows its login state and last quota reading.
+A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
-## Build and run
+I tried the other usage trackers. They sucked. I wanted to know if Claude could finish one more code review before my limit reset. Somehow I ended up configuring a dashboard. I already pay two robots to overcomplicate things. That position is filled.
 
-Use macOS 26 or later and Swift 6.4 or later. The project uses Swift Package Manager and the macOS SDK. Run these commands from the repository.
+So I put the numbers next to the clock. Click the stopwatch. Read the numbers. Congratulations on completing onboarding.
+
+## What you get
+
+- **Subscription limits.** See how much of each reported five-hour or weekly limit you have used and when it resets. Slopwatch finds your signed-in CLIs automatically.
+- **Token counts.** See the last 24 hours, 7 days, or 30 days. View both providers together or select one.
+- **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
+
+The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Slopwatch account, backend, or telemetry.
+
+## Build it
+
+You need macOS 26 or later and Swift 6.4 or later. Sign in to the Codex or Claude Code CLI you want to track. Then run these commands.
 
 ```sh
+git clone https://github.com/jad-eljerdy/slopwatch.git
+cd slopwatch
 swift test
 zsh scripts/build.sh
 open dist/Slopwatch.app
 ```
 
-Copy the built app to a stable location before you enable Claude limit capture. To inspect the same readings in Terminal, run the command below.
+Click the stopwatch in the menu bar. If you prefer Terminal, the same app prints the same readings.
 
 ```sh
 dist/Slopwatch.app/Contents/MacOS/Slopwatch --summary
 ```
 
-## Sources and privacy
+## Where the numbers come from
 
-Slopwatch calls `codex login status` and `claude auth status --json` to check local credentials. It reads usage from local session files. The app has no backend, network client, telemetry SDK, or automatic updater. It never sends a prompt to refresh usage.
+| Reading | Source |
+| --- | --- |
+| Codex limits | Quota readings in local Codex session logs. |
+| Claude limits | The signed-in Claude Code CLI can contact Anthropic for current limits. Slopwatch requests a fresh reading after five minutes or when you select **Refresh usage**. The request contains no model prompt. |
+| Token totals | Local Codex session files and Claude project logs, including subagent logs. Activity on another Mac counts only if its logs are also on this Mac. |
+| API value | A bundled table of USD rates for input, output, cache reads, and cache writes. Your subscription bill is a separate number. |
 
-Codex reports quotas in session records. Slopwatch requests Claude subscription limits through the signed-in Claude Code CLI. The CLI can contact Anthropic for these figures. Slopwatch uses a recent local reading when available. It checks again after five minutes or when you select Refresh usage. The request disables tools and session storage and contains no model prompt.
+For older Claude CLI versions, Slopwatch can read the local `/usage` cache or use an optional status-line helper. Move the app to a stable location before enabling the helper in Claude source details. You can disable it there. An existing custom status line takes precedence.
 
-Older Claude CLI versions can supply readings through the local `/usage` cache or the optional status-line helper in Claude source details. The helper stores only the observation time, percentages, and reset times. Slopwatch preserves an existing custom status line. Disable capture in the same panel before moving or removing the app.
+<details>
+<summary>Local paths and cache details</summary>
 
-CLI sign-in and all provider activity still belong to their respective tools. Expired readings remain available in source details. Usage from another device appears only if its logs exist on this Mac.
+Slopwatch reads `~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`. Compressed Codex logs require a local `zstd` executable. The app finds executables in `~/.local/bin`, Homebrew directories, and its search path. It honors `CODEX_HOME` and `CLAUDE_CONFIG_DIR` when its process receives those variables. Apps opened from Finder use the Finder environment.
 
-## Local files
+The local index lives in `~/Library/Caches/local.slopwatch.app/`. It stores counts, model names, response identifiers, timestamps, quota readings, paths, and file checkpoints. It excludes conversation text. Quit Slopwatch and remove that directory to rebuild the index. The optional Claude helper writes `slopwatch-limits.json` in the Claude configuration directory.
 
-Slopwatch reads `~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`. It honors `CODEX_HOME` and `CLAUDE_CONFIG_DIR` when the app process receives those variables. Finder launches use the Finder environment. The app finds both CLIs in `~/.local/bin`, Homebrew directories, and the process search path. Compressed Codex logs use the local `zstd` executable. The panel reports missing archive support.
+</details>
 
-The usage index lives in `~/Library/Caches/local.slopwatch.app/`. It contains response identifiers, counts, timestamps, model names, quota readings, local paths, and file checkpoints. It excludes prompts and responses. Quit Slopwatch and remove that directory to rebuild the index. The optional Claude helper writes `slopwatch-limits.json` in the Claude configuration directory.
+## Change something
 
-## Pricing
-
-API value estimates the standard USD cost of the observed tokens. The bundled catalog is dated November 18, 2026. The estimate includes reported cache reads and writes. It uses the default retention rate when Codex omits the write duration. It excludes tools, service-tier adjustments, regional charges, and subscription fees. A plus sign marks a partial estimate. Unknown models still count toward tokens. Claude history can include API-key sessions because historical messages do not always identify the billing account.
-
-Edit [rates.tsv](Sources/Slopwatch/Resources/rates.tsv) to change a model rate. Rebuild the app to apply it. Reference rates come from [OpenAI](https://developers.openai.com/api/docs/pricing) and [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing).
-
-## Code layout
+The [price table](Sources/Slopwatch/Resources/rates.tsv) is plain text. Edit a row and rebuild. The bundled rates are dated November 18, 2026. Estimates exclude tool fees, service-tier adjustments, regional charges, and subscription fees. Codex cache writes use the default retention rate when the log omits the duration. Some Claude logs also include API-key sessions. See the published rates from [OpenAI](https://developers.openai.com/api/docs/pricing) and [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing).
 
 | To change | Start here |
 | --- | --- |
-| Provider discovery and CLI authentication | `LocalPaths.swift`, `CLIStatus.swift` |
-| Codex and Claude event formats | `CodexReader.swift`, `ClaudeReader.swift`, `TokenDecoder.swift` |
-| Claude quota sources | `ClaudeQuota.swift`, `CaptureSetup.swift`, `Support/claude-statusline.sh` |
-| File discovery, streaming, and cache reuse | `HistoryFiles.swift`, `HistoryReader.swift`, `UsageEngine.swift` |
-| Time windows and pricing | `Accounting.swift`, `Pricing.swift` |
-| Panel layout, colors, and menu bar behavior | `Dashboard.swift`, `Theme.swift`, `MenuController.swift` |
+| CLI discovery and login checks | [LocalPaths.swift](Sources/Slopwatch/LocalPaths.swift) and [CLIStatus.swift](Sources/Slopwatch/CLIStatus.swift) |
+| Provider readings | [CodexReader.swift](Sources/Slopwatch/CodexReader.swift), [ClaudeReader.swift](Sources/Slopwatch/ClaudeReader.swift), and [ClaudeUsageRequest.swift](Sources/Slopwatch/ClaudeUsageRequest.swift) |
+| Time windows and pricing | [Accounting.swift](Sources/Slopwatch/Accounting.swift) and [Pricing.swift](Sources/Slopwatch/Pricing.swift) |
+| Menu layout and behavior | [Dashboard.swift](Sources/Slopwatch/Dashboard.swift) and [MenuController.swift](Sources/Slopwatch/MenuController.swift) |
 
-Swift sources are in `Sources/Slopwatch/`. The [product specification](SPEC.md) describes the acceptance checks.
+The [specification](SPEC.md) covers the design and acceptance checks.
