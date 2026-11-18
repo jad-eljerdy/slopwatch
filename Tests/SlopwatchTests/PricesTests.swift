@@ -19,3 +19,8 @@ import Testing
 @Test func openAIDatedAlias() throws {
     #expect(Pricing.standard.rate(for: "gpt-5.4-2026-03-05")?.input == 2.5)
 }
+
+@Test func unknownPrice() throws {
+    #expect(Pricing.standard.rate(for: "gpt-6-astra-next") == nil)
+    #expect(Pricing.standard.rate(for: "codex-auto-review") == nil)
+}
