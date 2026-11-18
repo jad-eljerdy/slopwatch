@@ -40,3 +40,8 @@ import Testing
     let fields: Fields = ["flag": true, "negative": -1, "huge": 1e20, "text": "10"]
     for key in fields.keys { #expect(fields.count(key) == 0) }
 }
+
+@Test func resetCounters() throws {
+    let t = Tokens(input: 10)
+    #expect(t.since(Tokens(input: 100)) == t)
+}
