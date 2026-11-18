@@ -35,3 +35,8 @@ import Testing
     #expect(t.total == 28)
     #expect(t.shortWrite == 8)
 }
+
+@Test func invalidCounters() throws {
+    let fields: Fields = ["flag": true, "negative": -1, "huge": 1e20, "text": "10"]
+    for key in fields.keys { #expect(fields.count(key) == 0) }
+}
