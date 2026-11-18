@@ -58,3 +58,13 @@ struct Quota: Codable, Sendable {
     var windows: [Limit] = []
     var plan: String?
 }
+
+func windowTitle(minutes: Int?) -> String {
+    switch minutes {
+    case 300: "5-hour"
+    case 10080: "Weekly"
+    case let n? where n > 0 && n.isMultiple(of: 60): String(n / 60) + "-hour"
+    case let n? where n > 0: String(n) + "-minute"
+    default: "Session"
+    }
+}
