@@ -83,3 +83,10 @@ import Testing
     RecordReader.consume(row, provider: .claude, into: &f)
     #expect(f.events.isEmpty)
 }
+
+@Test func corruptJSON() throws {
+    var f = FileIndex()
+    RecordReader.consume(Data(#"{"output_tokens":3"#.utf8), provider: .claude, into: &f)
+    #expect(f.skipped == 1)
+    #expect(f.events.isEmpty)
+}
