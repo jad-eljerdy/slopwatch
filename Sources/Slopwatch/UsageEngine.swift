@@ -48,8 +48,13 @@ extension UsageEngine {
         var snapshot = summarize(discovery.files, now: reference ?? Date())
         if failures > 0 { snapshot.issues.append("\(failures) log files or folders could not be read.") }
         if archiveMissing { snapshot.issues.append("Install zstd to include compressed Codex history.") }
-        if changed {
-            do { try cache?.save(files) } catch { snapshot.issues.append("The local index could not be saved.") }
+        cacheDirty = cacheDirty || changed
+        if cacheDirty && now.timeIntervalSince(cacheSaved) >= 300 {
+            do {
+                try cache?.save(files)
+                cacheDirty = false
+                cacheSaved = now
+            } catch { snapshot.issues.append("The local index could not be saved.") }
         }
         updateAuth(now: now, force: forceAuth)
         for provider in Provider.allCases { snapshot.reports[provider]?.connection = auth[provider] ?? .unavailable }
