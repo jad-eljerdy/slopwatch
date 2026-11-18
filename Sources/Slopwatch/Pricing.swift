@@ -37,3 +37,15 @@ extension Pricing {
         return models[base]
     }
 }
+
+extension Rate {
+    func dollars(for t: Tokens) -> Double {
+        let long = rule == "openai" && t.prompt > 272_000
+        let haiku = rule == "haiku" && t.prompt > 100_000
+        let inputFactor = haiku ? 5.0 : (long ? 2.0 : 1.0)
+        let outputFactor = haiku ? 5.0 : (long ? 1.5 : 1.0)
+        let promptCost = Double(t.input) * input + Double(t.read) * read
+            + Double(t.shortWrite) * shortWrite + Double(t.longWrite) * longWrite
+        return (promptCost * inputFactor + Double(t.output) * output * outputFactor) / 1_000_000
+    }
+}
