@@ -15,3 +15,15 @@ import Testing
     #expect(result[.week]?.tokens == 3)
     #expect(result[.month]?.tokens == 3)
 }
+
+@Test func rollingMonthBoundary() throws {
+    let now = Date()
+    var events: [String: UsageEvent] = [:]
+    for age in [Interval.week.seconds, Interval.month.seconds - 1, Interval.month.seconds] {
+        let id = String(age)
+        events[id] = UsageEvent(id: id, time: now.addingTimeInterval(-age), model: "unknown", tokens: Tokens(output: 1))
+    }
+    let values = Activity.rollup(events.values, now: now, prices: .standard)
+    #expect(values[.week]?.tokens == 0)
+    #expect(values[.month]?.tokens == 2)
+}
