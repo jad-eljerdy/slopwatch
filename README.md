@@ -37,3 +37,16 @@ The usage index lives in `~/Library/Caches/local.slopwatch.app/`. It contains re
 API value estimates the standard USD cost of the observed tokens. The bundled catalog is dated November 18, 2026. The estimate includes reported cache reads and writes. It uses the default retention rate when Codex omits the write duration. It excludes tools, service-tier adjustments, regional charges, and subscription fees. A plus sign marks a partial estimate. Unknown models still count toward tokens. Claude history can include API-key sessions because historical messages do not always identify the billing account.
 
 Edit [rates.tsv](Sources/Slopwatch/Resources/rates.tsv) to change a model rate. Rebuild the app to apply it. Reference rates come from [OpenAI](https://developers.openai.com/api/docs/pricing) and [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing).
+
+## Code layout
+
+| To change | Start here |
+| --- | --- |
+| Provider discovery and CLI authentication | `LocalPaths.swift`, `CLIStatus.swift` |
+| Codex and Claude event formats | `CodexReader.swift`, `ClaudeReader.swift`, `TokenDecoder.swift` |
+| Claude quota sources | `ClaudeQuota.swift`, `CaptureSetup.swift`, `Support/claude-statusline.sh` |
+| File discovery, streaming, and cache reuse | `HistoryFiles.swift`, `HistoryReader.swift`, `UsageEngine.swift` |
+| Time windows and pricing | `Accounting.swift`, `Pricing.swift` |
+| Panel layout, colors, and menu bar behavior | `Dashboard.swift`, `Theme.swift`, `MenuController.swift` |
+
+Swift sources are in `Sources/Slopwatch/`. The [product specification](SPEC.md) describes the acceptance checks.
