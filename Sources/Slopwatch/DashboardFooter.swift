@@ -6,6 +6,16 @@ struct DashboardFooter: View {
     @State private var showIssues = false
 
     var body: some View {
+        VStack(spacing: 9) {
+            usageControls
+            if let updater = model.updater {
+                AppUpdateRow(updater: updater)
+            }
+        }
+        .font(.system(size: 11)).foregroundStyle(.secondary)
+    }
+
+    private var usageControls: some View {
         HStack(spacing: 8) {
             if model.refreshing {
                 ProgressView().controlSize(.mini)
@@ -26,13 +36,13 @@ struct DashboardFooter: View {
                 .buttonStyle(.plain).disabled(model.refreshing).help("Refresh usage (⌘R)")
                 .keyboardShortcut("r").accessibilityLabel("Refresh usage")
             Menu {
-                if let controller = model.updater {
-                    Button("Check for Updates…") { controller.checkForUpdates(nil) }
+                if let updater = model.updater {
+                    Button("Check for Updates…") { updater.checkForUpdates() }
                     Toggle("Update Automatically", isOn: Binding(
-                        get: { controller.updater.automaticallyChecksForUpdates && controller.updater.automaticallyDownloadsUpdates },
+                        get: { updater.automaticallyChecksForUpdates && updater.automaticallyDownloadsUpdates },
                         set: { enabled in
-                            controller.updater.automaticallyChecksForUpdates = enabled
-                            controller.updater.automaticallyDownloadsUpdates = enabled
+                            updater.automaticallyChecksForUpdates = enabled
+                            updater.automaticallyDownloadsUpdates = enabled
                         }
                     ))
                     Divider()
@@ -40,6 +50,24 @@ struct DashboardFooter: View {
                 Button("Quit Slopwatch") { NSApp.terminate(nil) }.keyboardShortcut("q")
             } label: { Image(systemName: "ellipsis.circle") }
                 .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().accessibilityLabel("Slopwatch options")
-        }.font(.system(size: 11)).foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct AppUpdateRow: View {
+    let updater: SPUUpdater
+    @State private var canCheck = false
+
+    var body: some View {
+        HStack {
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            Text(version.map { "Slopwatch v" + $0 } ?? "Slopwatch")
+            Spacer()
+            Button("Check for Updates…") { updater.checkForUpdates() }
+                .controlSize(.small)
+                .disabled(!canCheck)
+                .help("Check the signed release feed for a newer version")
+        }
+        .onReceive(updater.publisher(for: \.canCheckForUpdates)) { canCheck = $0 }
     }
 }

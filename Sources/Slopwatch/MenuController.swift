@@ -25,7 +25,14 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popover.animates = false
         popover.delegate = self
         if Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil {
-            model.updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+            let driver = UpdateUserDriver(hostBundle: .main, delegate: nil)
+            let updater = SPUUpdater(hostBundle: .main, applicationBundle: .main, userDriver: driver, delegate: nil)
+            do {
+                try updater.start()
+                model.updater = updater
+            } catch {
+                NSAlert(error: error).runModal()
+            }
         }
         model.refresh()
         startPolling()

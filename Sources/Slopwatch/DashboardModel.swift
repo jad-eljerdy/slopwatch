@@ -9,7 +9,7 @@ final class DashboardModel {
     var provider: Provider?
     var refreshing = false
     let engine = UsageEngine()
-    var updater: SPUStandardUpdaterController?
+    var updater: SPUUpdater?
     private var refreshTask: Task<Void, Never>?
 
     init() {
