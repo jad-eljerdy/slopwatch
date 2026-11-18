@@ -96,3 +96,10 @@ import Testing
         "cachedUsageUtilization": ["accountUuid": "A", "fetchedAtMs": 1000, "utilization": ["five_hour": ["utilization": 42]]]]
     #expect(ClaudeQuota.cached(root) == nil)
 }
+
+@Test func claudeWeeklyOnly() throws {
+    let q = try #require(ClaudeQuota.parse(["seven_day": ["used_percentage": 8.4, "resets_at": 1000]], observed: Date()))
+    #expect(q.windows.count == 1)
+    #expect(q.windows.first?.title == "Weekly")
+    #expect(q.windows.first?.reset == Date(timeIntervalSince1970: 1000))
+}
