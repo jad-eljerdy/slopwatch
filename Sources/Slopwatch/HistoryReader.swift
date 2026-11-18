@@ -59,3 +59,17 @@ extension HistoryReader {
         guard task.terminationStatus == 0 else { throw CocoaError(.fileReadCorruptFile) }
     }
 }
+
+extension HistoryReader {
+    private static func fingerprint(_ handle: FileHandle, offset: UInt64) throws -> Data {
+        let size = min(offset, 256)
+        try handle.seek(toOffset: offset - size)
+        let bytes = size > 0 ? try handle.read(upToCount: Int(size)) ?? Data() : Data()
+        return Data(SHA256.hash(data: bytes))
+    }
+
+    private static func checkpointMatches(_ handle: FileHandle, index: FileIndex) -> Bool {
+        guard let expected = index.checkpoint, let actual = try? fingerprint(handle, offset: index.offset) else { return false }
+        return actual == expected
+    }
+}
