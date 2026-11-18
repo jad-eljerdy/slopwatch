@@ -5,6 +5,7 @@ struct FileIndex: Codable, Sendable {
     var size: UInt64 = 0
     var modified = Date.distantPast
     var offset: UInt64 = 0
+    var checkpoint: Data?
     var session = ""
     var model = "Unknown"
     var events: [String: UsageEvent] = [:]
