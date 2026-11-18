@@ -30,3 +30,10 @@ import Testing
     #expect(stream.skipped == 0)
     #expect(stream.complete == 4)
 }
+
+@Test func unicodeBoundary() throws {
+    var stream = LineStream()
+    var rows = [String]()
+    for byte in "é中\n".utf8 { stream.feed(Data([byte])) { rows.append(String(decoding: $0, as: UTF8.self)) } }
+    #expect(rows == ["é中"])
+}
