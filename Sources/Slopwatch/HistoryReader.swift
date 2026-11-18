@@ -32,3 +32,24 @@ extension HistoryReader {
         index.skipped += lines.skipped
     }
 }
+
+extension HistoryReader {
+    static func readArchive(_ file: HistoryFile, index: inout FileIndex, paths: LocalPaths) throws {
+        guard let decoder = paths.executable("zstd") else { throw CocoaError(.executableNotLoadable) }
+        let task = Process()
+        let pipe = Pipe()
+        task.executableURL = decoder
+        task.arguments = ["-qdc", "--", file.url.path]
+        task.standardInput = FileHandle.nullDevice
+        task.standardOutput = pipe
+        task.standardError = FileHandle.nullDevice
+        try task.run()
+        defer {
+            try? pipe.fileHandleForReading.close()
+            if task.isRunning { task.waitUntilExit() }
+        }
+        try drain(pipe.fileHandleForReading, provider: file.provider, index: &index)
+        task.waitUntilExit()
+        guard task.terminationStatus == 0 else { throw CocoaError(.fileReadCorruptFile) }
+    }
+}
