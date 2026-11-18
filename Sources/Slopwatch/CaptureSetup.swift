@@ -22,3 +22,26 @@ struct CaptureSetup {
         return (raw, object)
     }
 }
+
+extension CaptureSetup {
+    func change(enable: Bool) throws -> String {
+        let (original, fields) = try read()
+        var updated = fields
+        let current = fields.object("statusLine")["command"] as? String
+        if enable {
+            if current == command { return "Local Claude limit capture is enabled." }
+            guard fields["statusLine"] == nil else {
+                return "Claude already has a custom status line. Its /usage cache remains available."
+            }
+            updated["statusLine"] = ["type": "command", "command": command]
+        } else {
+            guard current == command else { return "Slopwatch does not control this status line." }
+            updated.removeValue(forKey: "statusLine")
+        }
+        let data = try JSONSerialization.data(withJSONObject: updated, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+        guard (try? Data(contentsOf: settings)) == original else { throw CocoaError(.fileWriteFileExists) }
+        try FileManager.default.createDirectory(at: settings.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try (data + Data([10])).write(to: settings, options: .atomic)
+        return enable ? "Enabled. Claude supplies limits after its next model response." : "Disabled local limit capture."
+    }
+}
