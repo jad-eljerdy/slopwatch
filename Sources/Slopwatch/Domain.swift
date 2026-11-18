@@ -43,3 +43,12 @@ struct Limit: Codable, Identifiable, Sendable {
         observed <= now && (reset.map { $0 > now } ?? (now.timeIntervalSince(observed) < 300))
     }
 }
+
+enum Connection: String, Sendable {
+    case checking = "Checking CLI"
+    case subscription = "Connected"
+    case api = "API access"
+    case signedOut = "Signed out"
+    case missing = "CLI missing"
+    case unavailable = "Status unavailable"
+}
