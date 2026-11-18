@@ -14,3 +14,10 @@ enum Display {
         return amount.formatted(.currency(code: "USD").locale(Locale(identifier: "en_US")))
     }
 }
+
+extension Display {
+    static func estimate(_ activity: Activity) -> String {
+        if activity.tokens > 0, activity.unpriced == activity.tokens { return "Unpriced" }
+        return money(activity.dollars) + (activity.unpriced > 0 ? "+" : "")
+    }
+}
