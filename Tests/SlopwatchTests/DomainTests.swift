@@ -12,3 +12,8 @@ import Testing
     let t = Tokens(codex: ["output_tokens": 20, "reasoning_output_tokens": 18])
     #expect(t.total == 20)
 }
+
+@Test func codexWrites() throws {
+    let t = Tokens(codex: ["input_tokens": 50, "cached_input_tokens": 10, "cache_write_input_tokens": 25])
+    #expect(t == Tokens(input: 15, read: 10, shortWrite: 25))
+}
