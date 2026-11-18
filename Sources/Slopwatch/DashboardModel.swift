@@ -20,3 +20,19 @@ final class DashboardModel {
         UserDefaults.standard.set(interval.rawValue, forKey: "interval")
     }
 }
+
+extension DashboardModel {
+    func refresh(force: Bool = false) {
+        guard refreshTask == nil else { return }
+        refreshing = true
+        refreshTask = Task {
+            snapshot = await engine.refresh(forceAuth: force)
+            refreshing = false
+            refreshTask = nil
+        }
+    }
+
+    func refreshIfNeeded() {
+        if Date().timeIntervalSince(snapshot.updated ?? .distantPast) >= 20 { refresh() }
+    }
+}
