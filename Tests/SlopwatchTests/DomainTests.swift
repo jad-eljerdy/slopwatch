@@ -45,3 +45,8 @@ import Testing
     let t = Tokens(input: 10)
     #expect(t.since(Tokens(input: 100)) == t)
 }
+
+@Test func incrementCounters() throws {
+    let t = Tokens(input: 15, output: 8)
+    #expect(t.since(Tokens(input: 10, output: 2)) == Tokens(input: 5, output: 6))
+}
