@@ -12,3 +12,12 @@ import Testing
     #expect(stream.complete == 6)
     #expect(stream.consumed == 7)
 }
+
+@Test func oversizedRecord() throws {
+    var stream = LineStream(maximum: 4)
+    var rows: [Data] = []
+    for chunk in ["12345", "678\nok\n"] { stream.feed(Data(chunk.utf8)) { rows.append($0) } }
+    #expect(stream.skipped == 1)
+    #expect(rows == [Data("ok".utf8)])
+    #expect(stream.complete == 12)
+}
