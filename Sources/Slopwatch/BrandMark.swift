@@ -11,3 +11,18 @@ struct WatchMark: Shape {
         return p.applying(CGAffineTransform(scaleX: rect.width / 24, y: rect.height / 24))
     }
 }
+
+@MainActor
+func menuBarImage() -> NSImage {
+    let image = NSImage(size: NSSize(width: 20, height: 20), flipped: true) { rect in
+        let path = NSBezierPath(cgPath: WatchMark().path(in: rect).cgPath)
+        NSColor.black.setStroke()
+        path.lineWidth = 1.8
+        path.lineCapStyle = .round
+        path.stroke()
+        return true
+    }
+    image.isTemplate = true
+    image.accessibilityDescription = "Slopwatch"
+    return image
+}
