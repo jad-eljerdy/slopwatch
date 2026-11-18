@@ -23,7 +23,7 @@ struct SourceDetails: View {
             }
             Divider()
             Text(provider == .codex ? "Codex records limits in local session logs. Use Codex to get a new reading."
-                 : "Claude Code saves limits when you open /usage. Its status line can also share limits after a model response.")
+                 : "Slopwatch asks your signed-in Claude Code CLI for subscription limits. Select Refresh usage to check again.")
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if provider == .claude { ClaudeCaptureButton(model: model) }
             Divider()

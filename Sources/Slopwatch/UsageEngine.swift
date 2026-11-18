@@ -7,6 +7,7 @@ actor UsageEngine {
     private var loaded = false
     private var auth: [Provider: Connection] = [:]
     private var authChecked = Date.distantPast
+    private var claudeUsageChecked = Date.distantPast
     private var cacheSaved = Date.distantPast
     private var cacheDirty = false
 
@@ -58,6 +59,20 @@ extension UsageEngine {
         }
         updateAuth(now: now, force: forceAuth)
         for provider in Provider.allCases { snapshot.reports[provider]?.connection = auth[provider] ?? .unavailable }
+        if auth[.claude] == .subscription, let cached = snapshot.reports[.claude]?.quota {
+            let current = cached.windows.contains { $0.isCurrent(at: now) }
+            let stale = !current || now.timeIntervalSince(cached.observed) >= 300
+            let retryInterval: TimeInterval = forceAuth ? 15 : 300
+            if (forceAuth || stale) && now.timeIntervalSince(claudeUsageChecked) >= retryInterval {
+                claudeUsageChecked = now
+                if let reading = ClaudeUsageRequest.fetch(paths: paths) {
+                    snapshot.reports[.claude]?.quota = reading
+                } else {
+                    snapshot.issues.append("Claude Code could not refresh its subscription limits.")
+                }
+            }
+        }
+        snapshot.updated = reference ?? Date()
         return snapshot
     }
 }
