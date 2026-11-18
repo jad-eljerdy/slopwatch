@@ -31,3 +31,23 @@ final class MenuController: NSObject, NSApplicationDelegate {
         popover.contentViewController?.view.window?.makeKey()
     }
 }
+
+extension MenuController {
+    private func startPolling() {
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(didWake),
+            name: NSWorkspace.didWakeNotification, object: nil)
+        polling = Task { [weak self] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(for: .seconds(60), tolerance: .seconds(5)) } catch { return }
+                self?.model.refreshIfNeeded()
+            }
+        }
+    }
+
+    @objc private func didWake() { model.refresh(force: true) }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        polling?.cancel()
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+    }
+}
