@@ -25,3 +25,9 @@ Slopwatch calls `codex login status` and `claude auth status --json` to check lo
 Codex reports quotas in session records. Claude Code can cache quotas when you open `/usage`. For automatic Claude readings, open Claude source details and enable local limit capture. The helper receives the values from Claude Code after a model response. It stores only the observation time, percentages, and reset times. Slopwatch preserves an existing custom status line. Disable capture in the same panel before moving or removing the app.
 
 CLI sign-in and all provider activity still belong to their respective tools. Expired readings remain available in source details. Usage from another device appears only if its logs exist on this Mac.
+
+## Local files
+
+Slopwatch reads `~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`. It honors `CODEX_HOME` and `CLAUDE_CONFIG_DIR` when the app process receives those variables. Finder launches use the Finder environment. The app finds both CLIs in `~/.local/bin`, Homebrew directories, and the process search path. Compressed Codex logs use the local `zstd` executable. The panel reports missing archive support.
+
+The usage index lives in `~/Library/Caches/local.slopwatch.app/`. It contains response identifiers, counts, timestamps, model names, quota readings, local paths, and file checkpoints. It excludes prompts and responses. Quit Slopwatch and remove that directory to rebuild the index. The optional Claude helper writes `slopwatch-limits.json` in the Claude configuration directory.
