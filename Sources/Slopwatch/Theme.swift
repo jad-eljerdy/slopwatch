@@ -15,3 +15,11 @@ enum Palette {
     static let ink = Color(red: 0.085, green: 0.106, blue: 0.12)
     static let grid = Color.white.opacity(0.13)
 }
+
+struct Caption: View {
+    var text: String
+    var body: some View {
+        Text(text.uppercased()).font(.system(size: 10, weight: .semibold))
+            .tracking(1.1).foregroundStyle(.secondary)
+    }
+}
