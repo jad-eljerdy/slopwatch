@@ -1,6 +1,10 @@
 # Slopwatch
 
+**[Download Slopwatch v1.0 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.0/Slopwatch-1.0.dmg)**
+
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
+
+Requires macOS 26 or later on Apple silicon or Intel. Open the DMG, drag Slopwatch into Applications, then open the app. This release uses an ad hoc signature. Apple has not notarized it, so macOS may block the first launch. [Apple’s guide to first-launch alerts](https://support.apple.com/en-us/102445)
 
 I tried the other usage trackers. They sucked. I wanted to know if Claude could finish one more code review before my limit reset. Somehow I ended up configuring a dashboard. I already pay two robots to overcomplicate things. That position is filled.
 
