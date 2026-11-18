@@ -21,3 +21,11 @@ import Testing
     #expect(file.events.count == 1)
     #expect(file.events.values.first?.id == "r")
 }
+
+@Test func repeatedCodexEvent() throws {
+    var f = FileIndex()
+    let event: Fields = ["info": ["total_token_usage": ["input_tokens": 40, "total_tokens": 40]]]
+    f.readTokenCount(event, at: Date())
+    f.readTokenCount(event, at: Date())
+    #expect(f.events.values.map(\.tokens.total) == [40])
+}
