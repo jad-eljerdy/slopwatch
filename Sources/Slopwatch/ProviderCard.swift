@@ -31,3 +31,20 @@ struct ProviderCard: View {
         }.padding(.vertical, 5)
     }
 }
+
+extension ProviderCard {
+    private var statusText: String {
+        if loading { return "Reading local usage…" }
+        switch report.connection {
+        case .missing: return "Install the CLI to connect this subscription."
+        case .signedOut: return "Sign in with the \(provider.rawValue) CLI to see limits."
+        case .api: return "The CLI uses API credentials."
+        case .unavailable: return "The CLI did not return its sign-in status."
+        default: break
+        }
+        if report.quota.observed != .distantPast {
+            return "Reading expired · " + report.quota.observed.formatted(date: .abbreviated, time: .shortened)
+        }
+        return provider == .codex ? "Waiting for a Codex limit reading." : "Waiting for a Claude limit reading."
+    }
+}
