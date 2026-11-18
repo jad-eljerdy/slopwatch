@@ -41,3 +41,9 @@ import Testing
     let rate = try #require(Pricing.standard.rate(for: "claude-haiku-5-5"))
     #expect(abs(rate.dollars(for: Tokens(input: 200_000)) - 0.1) < 0.000001)
 }
+
+@Test func partialDisplay() throws {
+    #expect(Display.estimate(Activity(tokens: 10, unpriced: 10)) == "Unpriced")
+    #expect(Display.estimate(Activity(tokens: 10, unpriced: 5, dollars: 1)) == "$1.00+")
+    #expect(Display.money(0.0001) == "<$0.01")
+}
