@@ -36,3 +36,12 @@ import Testing
     #expect(report.bins.last == 123)
     #expect(report.unpriced == 123)
 }
+
+@Test func combinedActivity() throws {
+    var snapshot = Snapshot()
+    snapshot.reports[.codex] = ProviderReport(periods: [.day: Activity(tokens: 32, dollars: 3)])
+    snapshot.reports[.claude] = ProviderReport(periods: [.day: Activity(tokens: 70, dollars: 2)])
+    #expect(snapshot.activity(.day, provider: nil).tokens == 102)
+    #expect(snapshot.activity(.day, provider: nil).dollars == 5)
+    #expect(snapshot.activity(.day, provider: .codex).tokens == 32)
+}
