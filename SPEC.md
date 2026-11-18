@@ -35,3 +35,7 @@ Open the panel immediately. Read files off the main thread. Reuse parsed records
 ## Privacy
 
 Process usage on this Mac. Keep the index free of conversation text, account credentials, and email addresses. Use local CLI status commands only. Disable optional CLI telemetry for those commands. Include no network client, update checker, or analytics SDK.
+
+## Acceptance
+
+Build a release app with the installed Apple Swift toolchain. Test both formats, duplicate records, partial files, calendar boundaries, pricing, and expired limits. Launch the signed local bundle and verify its menu bar item. Keep all Git history local.
