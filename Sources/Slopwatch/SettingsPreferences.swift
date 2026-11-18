@@ -1,0 +1,49 @@
+import Foundation
+import Observation
+
+enum LimitCheckInterval: Int, CaseIterable {
+    case one = 1, three = 3, five = 5, ten = 10, thirty = 30, sixty = 60
+
+    var duration: Duration { .seconds(rawValue * 60) }
+}
+
+enum LimitDisplay: String, CaseIterable {
+    case remaining = "Remaining"
+    case used = "Used"
+
+    var suffix: String { self == .remaining ? "left" : "used" }
+
+    func percent(used: Double) -> Double {
+        let value = min(100, max(0, used))
+        return self == .remaining ? 100 - value : value
+    }
+}
+
+@MainActor @Observable
+final class SettingsPreferences {
+    private let defaults: UserDefaults
+    var checkInterval: LimitCheckInterval {
+        didSet { defaults.set(checkInterval.rawValue, forKey: "limitCheckMinutes") }
+    }
+    var display: LimitDisplay {
+        didSet { defaults.set(display.rawValue, forKey: "limitDisplay") }
+    }
+    var hideUnused: Bool {
+        didSet { defaults.set(hideUnused, forKey: "hideUnusedSubscriptions") }
+    }
+    var showResets: Bool {
+        didSet { defaults.set(showResets, forKey: "showResetTimes") }
+    }
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        checkInterval = LimitCheckInterval(rawValue: defaults.integer(forKey: "limitCheckMinutes")) ?? .five
+        display = LimitDisplay(rawValue: defaults.string(forKey: "limitDisplay") ?? "") ?? .remaining
+        hideUnused = defaults.bool(forKey: "hideUnusedSubscriptions")
+        showResets = defaults.object(forKey: "showResetTimes") as? Bool ?? true
+    }
+
+    func shows(_ connection: Connection) -> Bool {
+        !hideUnused || connection == .subscription || connection == .checking
+    }
+}
