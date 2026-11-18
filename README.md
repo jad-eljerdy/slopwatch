@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.1.2 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.2/Slopwatch-1.1.2.dmg)**
+**[Download Slopwatch v1.1.3 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.3/Slopwatch-1.1.3.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -56,7 +56,7 @@ For older Claude CLI versions, Slopwatch can read the local `/usage` cache or us
 <details>
 <summary>Local paths and cache details</summary>
 
-Slopwatch reads `~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`. Compressed Codex logs require a local `zstd` executable. The app finds executables in `~/.local/bin`, Homebrew directories, and its search path. It honors `CODEX_HOME` and `CLAUDE_CONFIG_DIR` when its process receives those variables. Apps opened from Finder use the Finder environment.
+Slopwatch reads `~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`. Slopwatch includes the Zstandard decoder for compressed Codex logs. The app finds executables in `~/.local/bin`, Homebrew directories, and its search path. It honors `CODEX_HOME` and `CLAUDE_CONFIG_DIR` when its process receives those variables. Apps opened from Finder use the Finder environment.
 
 The local index lives in `~/Library/Caches/local.slopwatch.app/`. It stores counts, model names, response identifiers, timestamps, quota readings, paths, and file checkpoints. It excludes conversation text. Quit Slopwatch and remove that directory to rebuild the index. The optional Claude helper writes `slopwatch-limits.json` in the Claude configuration directory.
 
