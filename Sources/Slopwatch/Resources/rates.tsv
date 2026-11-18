@@ -30,3 +30,4 @@ claude-fable-5-1	10	0.25	12.5	20	50	flat
 claude-mythos-5-1	10	0.25	12.5	20	50	flat
 claude-fable-5	10	1	12.5	20	50	flat
 claude-mythos-5	10	1	12.5	20	50	flat
+claude-opus-5-5	4	0.2	5	8	20	flat
