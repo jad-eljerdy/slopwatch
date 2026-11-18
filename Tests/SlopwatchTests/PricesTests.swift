@@ -24,3 +24,9 @@ import Testing
     #expect(Pricing.standard.rate(for: "gpt-6-astra-next") == nil)
     #expect(Pricing.standard.rate(for: "codex-auto-review") == nil)
 }
+
+@Test func weightedCosts() throws {
+    let rate = try #require(Pricing.standard.rate(for: "claude-opus-5-5"))
+    let t = Tokens(input: 1_000_000, read: 1_000_000, shortWrite: 1_000_000, longWrite: 1_000_000, output: 1_000_000)
+    #expect(abs(rate.dollars(for: t) - 37.2) < 0.000001)
+}
