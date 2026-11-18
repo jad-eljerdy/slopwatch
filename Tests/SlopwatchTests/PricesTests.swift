@@ -36,3 +36,8 @@ import Testing
     #expect(rate.dollars(for: Tokens(input: 272_000)) == 272_000 * 8.0 / 1e6)
     #expect(rate.dollars(for: Tokens(input: 272_001, output: 10)) == (272_001 * 16.0 + 600) / 1e6)
 }
+
+@Test func haikuTier() throws {
+    let rate = try #require(Pricing.standard.rate(for: "claude-haiku-5-5"))
+    #expect(abs(rate.dollars(for: Tokens(input: 200_000)) - 0.1) < 0.000001)
+}
