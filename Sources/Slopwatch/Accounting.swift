@@ -29,3 +29,10 @@ extension Activity {
         return result
     }
 }
+
+extension Activity {
+    static func + (lhs: Self, rhs: Self) -> Self {
+        Self(tokens: lhs.tokens + rhs.tokens, unpriced: lhs.unpriced + rhs.unpriced,
+             dollars: lhs.dollars + rhs.dollars, bins: zip(lhs.bins, rhs.bins).map(+))
+    }
+}
