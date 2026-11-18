@@ -7,8 +7,29 @@ extension Provider {
         case .claude: Color(red: 0.94, green: 0.63, blue: 0.43)
         }
     }
+}
 
-    var symbol: String { self == .codex ? "chevron.left.forwardslash.chevron.right" : "sun.max.fill" }
+struct ProviderIcon: View {
+    let provider: Provider
+    let size: CGFloat
+
+    private static let icons: [Provider: NSImage] = {
+        var images: [Provider: NSImage] = [:]
+        for provider in Provider.allCases {
+            let name = provider == .codex ? "ChatGPT" : "Claude"
+            let url = Bundle.main.url(forResource: name, withExtension: "png", subdirectory: "ProviderIcons")
+                ?? Bundle.module.url(forResource: name, withExtension: "png", subdirectory: "ProviderIcons")
+            if let url { images[provider] = NSImage(contentsOf: url) }
+        }
+        return images
+    }()
+
+    var body: some View {
+        if let image = Self.icons[provider] {
+            Image(nsImage: image).resizable().interpolation(.high).scaledToFit()
+                .frame(width: size, height: size).accessibilityHidden(true)
+        }
+    }
 }
 
 enum Palette {

@@ -10,10 +10,7 @@ struct ProviderCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             HStack(spacing: 8) {
-                Image(systemName: provider.symbol).font(.system(size: 13, weight: .semibold))
-                    .frame(width: 26, height: 26)
-                    .background(provider.tint.opacity(0.24), in: RoundedRectangle(cornerRadius: 8))
-                    .accessibilityHidden(true)
+                ProviderIcon(provider: provider, size: 28)
                 Text(provider.rawValue).font(.system(size: 14, weight: .semibold))
                 Spacer()
                 Text(report.connection.rawValue).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
@@ -45,6 +42,6 @@ extension ProviderCard {
         if report.quota.observed != .distantPast {
             return "Reading expired · " + report.quota.observed.formatted(date: .abbreviated, time: .shortened)
         }
-        return provider == .codex ? "Waiting for a Codex limit reading." : "Waiting for a Claude limit reading."
+        return provider == .codex ? "Waiting for a Codex limit reading." : "Claude Code returned no limits. Select Refresh usage to retry."
     }
 }

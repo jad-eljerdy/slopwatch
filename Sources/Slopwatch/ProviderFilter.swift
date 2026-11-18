@@ -13,7 +13,7 @@ struct ProviderFilter: View {
         let selected = model.provider == provider
         return Button { model.provider = provider } label: {
             HStack(spacing: 5) {
-                if let provider { Circle().fill(provider.tint).frame(width: 7, height: 7) }
+                if let provider { ProviderIcon(provider: provider, size: 16) }
                 Text(title).font(.system(size: 11, weight: selected ? .semibold : .regular))
             }
             .padding(.horizontal, 9).padding(.vertical, 5)
