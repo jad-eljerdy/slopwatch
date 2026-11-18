@@ -10,3 +10,14 @@ enum CLIStatus {
         return text.contains("chatgpt") ? .subscription : .unavailable
     }
 }
+
+extension CLIStatus {
+    static func claude(_ data: Data) -> Connection {
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? Fields,
+              let signedIn = root["loggedIn"] as? Bool else { return .unavailable }
+        guard signedIn else { return .signedOut }
+        let method = (root["authMethod"] as? String ?? "").lowercased()
+        if method == "claude.ai" || root["subscriptionType"] as? String != nil { return .subscription }
+        return .api
+    }
+}
