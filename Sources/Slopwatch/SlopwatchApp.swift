@@ -4,7 +4,7 @@ import AppKit
 struct SlopwatchApp {
     @MainActor static func main() async {
         if CommandLine.arguments.contains("--summary") {
-            let snapshot = await UsageEngine().refresh(forceAuth: true)
+            let snapshot = await UsageEngine().refresh()
             printSummary(snapshot)
             return
         }
