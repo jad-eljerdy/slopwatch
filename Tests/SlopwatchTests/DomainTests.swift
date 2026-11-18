@@ -73,3 +73,10 @@ import Testing
     #expect(!limit.isCurrent(at: now.addingTimeInterval(301)))
     #expect(!limit.isCurrent(at: now.addingTimeInterval(-1)))
 }
+
+@Test func timestampPrecision() throws {
+    let whole = try #require(timestamp("2026-11-18T10:00:00Z"))
+    let fractional = try #require(timestamp("2026-11-18T12:00:00.125+02:00"))
+    #expect(abs(fractional.timeIntervalSince(whole) - 0.125) < 0.0001)
+    #expect(timestamp("yesterday") == nil)
+}
