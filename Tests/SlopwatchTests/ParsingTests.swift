@@ -76,3 +76,10 @@ import Testing
     f.readClaude(["type": "assistant", "message": ["id": "m", "model": "<synthetic>", "usage": ["output_tokens": 20]]], at: Date())
     #expect(f.events.isEmpty)
 }
+
+@Test func skipUserContent() throws {
+    var f = FileIndex()
+    let row = Data(#"{"type":"user","timestamp":"2026-01-01T00:00:00Z","message":{"usage":{"output_tokens":10}}}"#.utf8)
+    RecordReader.consume(row, provider: .claude, into: &f)
+    #expect(f.events.isEmpty)
+}
