@@ -54,3 +54,14 @@ private struct HistoryFixture {
     #expect(next.events.count == 2)
     #expect(next.events.values.map(\.tokens.total).reduce(0, +) == 5)
 }
+
+@Test func truncateLog() throws {
+    let f = try HistoryFixture()
+    defer { f.clean() }
+    try Data((f.row("a", tokens: 20) + f.row("b", tokens: 30)).utf8).write(to: f.path)
+    let first = try f.scan()
+    try Data(f.row("a", tokens: 7).utf8).write(to: f.path)
+    let next = try f.scan(first)
+    #expect(next.events.count == 1)
+    #expect(next.events.values.first?.tokens.total == 7)
+}
