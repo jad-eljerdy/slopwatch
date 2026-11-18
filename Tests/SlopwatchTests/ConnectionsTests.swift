@@ -21,3 +21,10 @@ import Testing
     #expect(CLIStatus.claude(Data("bad".utf8)) == .unavailable)
     #expect(CLIStatus.claude(Data(#"{"loggedIn":false}"#.utf8)) == .signedOut)
 }
+
+@Test func customRoots() throws {
+    let paths = LocalPaths(home: URL(filePath: "/example"), environment: ["CODEX_HOME": "/codex-custom", "CLAUDE_CONFIG_DIR": "/claude-custom"])
+    #expect(paths.codex.path == "/codex-custom")
+    #expect(paths.claudeConfigs.first?.path == "/claude-custom/.claude.json")
+    #expect(paths.logs(for: .codex).count == 2)
+}
