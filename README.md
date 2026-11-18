@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.1.3 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.3/Slopwatch-1.1.3.dmg)**
+**[Download Slopwatch v1.1.4 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.4/Slopwatch-1.1.4.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -12,11 +12,17 @@ So I put the numbers next to the clock. Click the stopwatch. Read the numbers. C
 
 ## What you get
 
-- **Subscription limits.** See how much of each reported five-hour or weekly limit you have used and when it resets. Slopwatch finds your signed-in CLIs automatically.
+- **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. Slopwatch finds your signed-in CLIs automatically.
 - **Token counts.** See the last 24 hours, 7 days, or 30 days. View both providers together or select one.
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
 The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Slopwatch account, backend, or telemetry.
+
+## Settings
+
+Open the menu bar panel and select **… → Settings…**. In **General**, choose how often Slopwatch checks subscription limits. The default is 5 minutes. You can select 1, 3, 5, 10, 30, or 60 minutes. Select **Refresh usage** to check immediately.
+
+Limit bars show the percentage left by default. Switch to **Used** to see the percentage used. You can also hide reset times and hide subscriptions that are not connected. Both providers still contribute to activity totals. **About** shows the installed version and build number.
 
 ## Updates
 
@@ -47,7 +53,7 @@ dist/Slopwatch.app/Contents/MacOS/Slopwatch --summary
 | Reading | Source |
 | --- | --- |
 | Codex limits | Quota readings in local Codex session logs. |
-| Claude limits | The signed-in Claude Code CLI can contact Anthropic for current limits. Slopwatch requests a fresh reading after five minutes or when you select **Refresh usage**. The request contains no model prompt. |
+| Claude limits | The signed-in Claude Code CLI can contact Anthropic for current limits. Slopwatch requests a fresh reading at your selected interval or when you select **Refresh usage**. The request contains no model prompt. |
 | Token totals | Local Codex session files and Claude project logs, including subagent logs. Activity on another Mac counts only if its logs are also on this Mac. |
 | API value | A bundled table of USD rates for input, output, cache reads, and cache writes. Your subscription bill is a separate number. |
 
