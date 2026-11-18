@@ -90,3 +90,9 @@ import Testing
     #expect(f.skipped == 1)
     #expect(f.events.isEmpty)
 }
+
+@Test func accountMismatch() throws {
+    let root: Fields = ["oauthAccount": ["accountUuid": "B"],
+        "cachedUsageUtilization": ["accountUuid": "A", "fetchedAtMs": 1000, "utilization": ["five_hour": ["utilization": 42]]]]
+    #expect(ClaudeQuota.cached(root) == nil)
+}
