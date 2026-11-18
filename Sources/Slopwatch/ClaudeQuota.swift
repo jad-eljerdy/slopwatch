@@ -10,3 +10,18 @@ enum ClaudeQuota {
         return parse(cache.object("utilization"), observed: observed)
     }
 }
+
+extension ClaudeQuota {
+    static func parse(_ fields: Fields, observed: Date) -> Quota? {
+        let names = [("five_hour", "5-hour"), ("seven_day", "Weekly"),
+                     ("seven_day_opus", "Weekly · Opus"), ("seven_day_sonnet", "Weekly · Sonnet")]
+        let windows = names.compactMap { key, title -> Limit? in
+            let w = fields.object(key)
+            guard let used = w.number("utilization") ?? w.number("used_percentage"),
+                  (0...100).contains(used) else { return nil }
+            let reset = timestamp(w["resets_at"]) ?? w.number("resets_at").map(Date.init(timeIntervalSince1970:))
+            return Limit(title: title, used: used, reset: reset, observed: observed)
+        }
+        return windows.isEmpty ? nil : Quota(observed: observed, windows: windows)
+    }
+}
