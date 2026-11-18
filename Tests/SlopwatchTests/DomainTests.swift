@@ -23,3 +23,9 @@ import Testing
     #expect(t.read == 2)
     #expect(t.input == 0)
 }
+
+@Test func claudeLongWrite() throws {
+    let t = Tokens(claude: ["cache_creation_input_tokens": 50, "cache_creation": ["ephemeral_1h_input_tokens": 40]])
+    #expect(t.shortWrite == 10)
+    #expect(t.longWrite == 40)
+}
