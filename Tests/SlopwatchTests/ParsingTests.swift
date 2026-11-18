@@ -70,3 +70,9 @@ import Testing
     #expect(f.events.count == 1)
     #expect(f.events.values.first?.tokens.total == 12)
 }
+
+@Test func skipSynthetic() throws {
+    var f = FileIndex()
+    f.readClaude(["type": "assistant", "message": ["id": "m", "model": "<synthetic>", "usage": ["output_tokens": 20]]], at: Date())
+    #expect(f.events.isEmpty)
+}
