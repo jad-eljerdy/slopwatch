@@ -1,8 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 cd "${0:A:h:h}"
-swift build -c release
-bin=$(swift build -c release --show-bin-path)
+swift build -c release "$@"
+bin=$(swift build -c release "$@" --show-bin-path)
 app="$PWD/dist/Slopwatch.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 install -m 755 "$bin/Slopwatch" "$app/Contents/MacOS/Slopwatch"
