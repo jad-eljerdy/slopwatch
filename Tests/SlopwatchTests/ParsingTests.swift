@@ -46,3 +46,9 @@ import Testing
     #expect(f.quota.windows.first?.title == "Weekly")
     #expect(f.events.isEmpty)
 }
+
+@Test func codexSeparatePools() throws {
+    var f = FileIndex()
+    f.readQuota(["limit_id": "extra", "primary": ["used_percent": 10]], at: Date())
+    #expect(f.quota.windows.isEmpty)
+}
