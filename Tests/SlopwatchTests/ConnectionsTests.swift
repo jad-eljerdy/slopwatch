@@ -11,3 +11,8 @@ import Testing
     #expect(CLIStatus.codex("Not logged in", status: 1) == .signedOut)
     #expect(CLIStatus.codex("Failed to run", status: 1) == .unavailable)
 }
+
+@Test func claudeAuth() throws {
+    #expect(CLIStatus.claude(Data(#"{"loggedIn":true,"authMethod":"claude.ai"}"#.utf8)) == .subscription)
+    #expect(CLIStatus.claude(Data(#"{"loggedIn":true,"authMethod":"api_key"}"#.utf8)) == .api)
+}
