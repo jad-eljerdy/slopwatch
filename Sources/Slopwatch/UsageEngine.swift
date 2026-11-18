@@ -74,3 +74,11 @@ extension UsageEngine {
         return result
     }
 }
+
+extension UsageEngine {
+    private func updateAuth(now: Date, force: Bool) {
+        guard force || now.timeIntervalSince(authChecked) >= 300 else { return }
+        for provider in Provider.allCases { auth[provider] = CLIStatus.check(provider, paths: paths) }
+        authChecked = now
+    }
+}
