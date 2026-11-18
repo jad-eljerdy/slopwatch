@@ -5,6 +5,8 @@ import SwiftUI
 enum SettingsWindow {
     static func make(model: DashboardModel) -> NSWindow {
         let tabs = NSTabViewController()
+        tabs.title = "Slopwatch Settings"
+        tabs.canPropagateSelectedChildViewControllerTitle = false
         tabs.tabStyle = .toolbar
         tabs.addTabViewItem(tab("General", symbol: "gearshape", view: GeneralSettings(model: model)))
         tabs.addTabViewItem(tab("About", symbol: "info.circle", view: AboutSettings()))
@@ -13,10 +15,10 @@ enum SettingsWindow {
         window.styleMask = [.titled, .closable]
         window.title = "Slopwatch Settings"
         window.toolbarStyle = .preference
-        window.setContentSize(NSSize(width: 482, height: 350))
         window.isReleasedWhenClosed = false
         window.center()
         window.setFrameAutosaveName("SlopwatchSettings")
+        window.setContentSize(NSSize(width: 482, height: 430))
         return window
     }
 
