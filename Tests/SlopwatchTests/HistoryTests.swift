@@ -38,3 +38,19 @@ private struct HistoryFixture {
     #expect(second.events.count == 2)
     #expect(second.offset == a.utf8.count + b.utf8.count)
 }
+
+@Test func replacedGrowingLog() throws {
+    let f = try HistoryFixture()
+    defer { f.clean() }
+    try Data(f.row("old", tokens: 1).utf8).write(to: f.path)
+    let first = try f.scan()
+    let contents = f.row("new", tokens: 2) + f.row("other", tokens: 3)
+    let writer = try FileHandle(forWritingTo: f.path)
+    try writer.truncate(atOffset: 0)
+    try writer.write(contentsOf: Data(contents.utf8))
+    try writer.close()
+    let next = try f.scan(first)
+    #expect(next.inode == first.inode)
+    #expect(next.events.count == 2)
+    #expect(next.events.values.map(\.tokens.total).reduce(0, +) == 5)
+}
