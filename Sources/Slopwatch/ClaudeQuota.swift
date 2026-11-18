@@ -25,3 +25,23 @@ extension ClaudeQuota {
         return windows.isEmpty ? nil : Quota(observed: observed, windows: windows)
     }
 }
+
+extension LocalPaths {
+    var statusCapture: URL { claude.appending(path: "slopwatch-limits.json") }
+
+    func claudeQuota() -> Quota {
+        var snapshots = claudeConfigs.compactMap { url -> Quota? in
+            guard let data = try? Data(contentsOf: url),
+                  let root = try? JSONSerialization.jsonObject(with: data) as? Fields else { return nil }
+            return ClaudeQuota.cached(root)
+        }
+        if let data = try? Data(contentsOf: statusCapture),
+           let root = try? JSONSerialization.jsonObject(with: data) as? Fields,
+           let epoch = root.number("observed") {
+            if let snapshot = ClaudeQuota.parse(root.object("rate_limits"), observed: Date(timeIntervalSince1970: epoch)) {
+                snapshots.append(snapshot)
+            }
+        }
+        return snapshots.max { $0.observed < $1.observed } ?? Quota()
+    }
+}
