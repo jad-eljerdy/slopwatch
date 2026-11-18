@@ -30,3 +30,9 @@ import Testing
     let t = Tokens(input: 1_000_000, read: 1_000_000, shortWrite: 1_000_000, longWrite: 1_000_000, output: 1_000_000)
     #expect(abs(rate.dollars(for: t) - 37.2) < 0.000001)
 }
+
+@Test func longContext() throws {
+    let rate = try #require(Pricing.standard.rate(for: "gpt-6.2-astra"))
+    #expect(rate.dollars(for: Tokens(input: 272_000)) == 272_000 * 8.0 / 1e6)
+    #expect(rate.dollars(for: Tokens(input: 272_001, output: 10)) == (272_001 * 16.0 + 600) / 1e6)
+}
