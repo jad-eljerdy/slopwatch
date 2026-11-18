@@ -16,3 +16,8 @@ import Testing
     #expect(CLIStatus.claude(Data(#"{"loggedIn":true,"authMethod":"claude.ai"}"#.utf8)) == .subscription)
     #expect(CLIStatus.claude(Data(#"{"loggedIn":true,"authMethod":"api_key"}"#.utf8)) == .api)
 }
+
+@Test func claudeFailure() throws {
+    #expect(CLIStatus.claude(Data("bad".utf8)) == .unavailable)
+    #expect(CLIStatus.claude(Data(#"{"loggedIn":false}"#.utf8)) == .signedOut)
+}
