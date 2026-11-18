@@ -29,11 +29,13 @@ enum HistoryReader {
 extension HistoryReader {
     static func drain(_ handle: FileHandle, provider: Provider, index: inout FileIndex) throws {
         var lines = LineStream()
-        while let chunk = try handle.read(upToCount: 256 * 1024), !chunk.isEmpty {
+        while try autoreleasepool(invoking: {
+            guard let chunk = try handle.read(upToCount: 256 * 1024), !chunk.isEmpty else { return false }
             lines.feed(chunk) { data in
                 autoreleasepool { RecordReader.consume(data, provider: provider, into: &index) }
             }
-        }
+            return true
+        }) {}
         index.offset += lines.complete
         index.skipped += lines.skipped
     }
