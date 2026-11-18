@@ -11,8 +11,13 @@ enum HistoryReader {
         } else {
             let handle = try FileHandle(forReadingFrom: file.url)
             defer { try? handle.close() }
+            if append && !checkpointMatches(handle, index: index) {
+                index = FileIndex()
+                index.session = file.url.deletingPathExtension().lastPathComponent
+            }
             try handle.seek(toOffset: index.offset)
             try drain(handle, provider: file.provider, index: &index)
+            index.checkpoint = try fingerprint(handle, offset: index.offset)
         }
         index.size = file.size
         index.modified = file.modified
