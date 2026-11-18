@@ -22,3 +22,21 @@ struct SlopwatchApp {
         withExtendedLifetime(delegate) { app.run() }
     }
 }
+
+extension SlopwatchApp {
+    static func printSummary(_ snapshot: Snapshot) {
+        for provider in Provider.allCases {
+            guard let report = snapshot.reports[provider] else { continue }
+            print(provider.rawValue, report.connection.rawValue)
+            for interval in Interval.allCases {
+                let a = report.periods[interval] ?? Activity()
+                print(" ", interval.label, a.tokens, "tokens", Display.estimate(a), "unpriced", a.unpriced)
+            }
+            for limit in report.quota.windows {
+                let current = limit.isCurrent(at: snapshot.updated ?? Date())
+                print(" ", limit.title, current ? "\(limit.used)% used" : "expired", "observed", limit.observed.formatted())
+            }
+        }
+        for issue in snapshot.issues { print("Partial data:", issue) }
+    }
+}
