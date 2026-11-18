@@ -16,3 +16,13 @@ extension FileIndex {
         }
     }
 }
+
+extension FileIndex {
+    mutating func readResponse(_ payload: Fields, at time: Date) {
+        let tokens = Tokens(codex: payload.object("usage"))
+        guard tokens.total > 0, let id = payload["response_id"] as? String else { return }
+        let cumulative = payload.object("thread_token_usage").count("total_tokens")
+        let key = cumulative > 0 ? session + "/" + String(cumulative) : id
+        events[key] = UsageEvent(id: id, time: time, model: payload["model"] as? String ?? model, tokens: tokens)
+    }
+}
