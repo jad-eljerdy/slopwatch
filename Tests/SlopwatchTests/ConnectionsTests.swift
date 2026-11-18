@@ -28,3 +28,8 @@ import Testing
     #expect(paths.claudeConfigs.first?.path == "/claude-custom/.claude.json")
     #expect(paths.logs(for: .codex).count == 2)
 }
+
+@Test func relativeRoot() throws {
+    let paths = LocalPaths(home: URL(filePath: "/example"), environment: ["CODEX_HOME": "relative"])
+    #expect(paths.codex.path == "/example/.codex")
+}
