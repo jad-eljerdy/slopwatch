@@ -13,3 +13,14 @@ enum Interval: Int, CaseIterable, Identifiable, Sendable {
     var seconds: Double { Double(rawValue) * 86_400 }
     var label: String { self == .day ? "24h" : String(rawValue) + "d" }
 }
+
+struct Tokens: Codable, Equatable, Sendable {
+    var input = 0
+    var read = 0
+    var shortWrite = 0
+    var longWrite = 0
+    var output = 0
+
+    var prompt: Int { input + read + shortWrite + longWrite }
+    var total: Int { prompt + output }
+}
