@@ -65,3 +65,11 @@ import Testing
     #expect(limit.isCurrent(at: start))
     #expect(!limit.isCurrent(at: start.addingTimeInterval(10)))
 }
+
+@Test func quotaWithoutReset() throws {
+    let now = Date()
+    let limit = Limit(title: "Session", used: 5, reset: nil, observed: now)
+    #expect(limit.isCurrent(at: now))
+    #expect(!limit.isCurrent(at: now.addingTimeInterval(301)))
+    #expect(!limit.isCurrent(at: now.addingTimeInterval(-1)))
+}
