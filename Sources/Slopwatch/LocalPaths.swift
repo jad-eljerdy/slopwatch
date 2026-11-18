@@ -25,3 +25,12 @@ extension LocalPaths {
         }
     }
 }
+
+extension LocalPaths {
+    func executable(_ name: String) -> URL? {
+        let fixed = [home.appending(path: ".local/bin").path, "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin"]
+        let path = (environment["PATH"] ?? "").split(separator: ":").map(String.init).filter { $0.hasPrefix("/") }
+        return (fixed + path).lazy.map { URL(filePath: $0).appending(path: name) }
+            .first { FileManager.default.isExecutableFile(atPath: $0.path) }
+    }
+}
