@@ -11,6 +11,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var anchorX: CGFloat = 0
     private weak var anchorScreen: NSScreen?
     private weak var observedWindow: NSWindow?
+    private let updateChecks = DailyUpdateChecks()
     private var polling: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -27,10 +28,11 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popover.delegate = self
         if Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil {
             let driver = UpdateUserDriver(hostBundle: .main, delegate: nil)
-            let updater = SPUUpdater(hostBundle: .main, applicationBundle: .main, userDriver: driver, delegate: nil)
+            let updater = SPUUpdater(hostBundle: .main, applicationBundle: .main, userDriver: driver, delegate: updateChecks)
             do {
                 try updater.start()
                 model.updater = updater
+                updateChecks.start(with: updater)
             } catch {
                 NSAlert(error: error).runModal()
             }
@@ -114,14 +116,19 @@ extension MenuController {
         polling = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(60), tolerance: .seconds(5)) } catch { return }
+                self?.updateChecks.checkIfDue()
                 self?.model.refreshIfNeeded()
             }
         }
     }
 
-    @objc private func didWake() { model.refresh(force: true) }
+    @objc private func didWake() {
+        updateChecks.checkIfDue()
+        model.refresh(force: true)
+    }
 
     func applicationWillTerminate(_ notification: Notification) {
+        updateChecks.stop()
         polling?.cancel()
         NSWorkspace.shared.notificationCenter.removeObserver(self)
     }
