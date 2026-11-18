@@ -15,6 +15,12 @@ struct SourceDetails: View {
             if report.quota.observed != .distantPast {
                 LabeledContent("Limit reading", value: report.quota.observed.formatted(date: .abbreviated, time: .shortened))
             }
+            if !report.quota.windows.isEmpty {
+                ForEach(Array(report.quota.windows.enumerated()), id: \.offset) { _, window in
+                    let percent = (window.used / 100).formatted(.percent.precision(.fractionLength(0...1)))
+                    LabeledContent(window.title, value: percent + " used at last reading")
+                }
+            }
             Divider()
             Text(provider == .codex ? "Codex records limits in local session logs. Use Codex to get a new reading."
                  : "Claude Code saves limits when you open /usage. Its status line can also share limits after a model response.")
