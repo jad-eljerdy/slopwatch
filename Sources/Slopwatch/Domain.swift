@@ -31,3 +31,15 @@ struct UsageEvent: Codable, Sendable {
     let model: String
     let tokens: Tokens
 }
+
+struct Limit: Codable, Identifiable, Sendable {
+    let title: String
+    let used: Double
+    let reset: Date?
+    let observed: Date
+
+    var id: String { title }
+    func isCurrent(at now: Date) -> Bool {
+        observed <= now && (reset.map { $0 > now } ?? (now.timeIntervalSince(observed) < 300))
+    }
+}
