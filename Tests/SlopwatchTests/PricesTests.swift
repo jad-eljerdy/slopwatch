@@ -15,3 +15,7 @@ import Testing
 @Test func claudeDatedAlias() throws {
     #expect(Pricing.standard.rate(for: "claude-opus-4-5-20251101")?.output == 25)
 }
+
+@Test func openAIDatedAlias() throws {
+    #expect(Pricing.standard.rate(for: "gpt-5.4-2026-03-05")?.input == 2.5)
+}
