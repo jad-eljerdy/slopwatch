@@ -17,3 +17,9 @@ extension Dictionary where Key == String, Value == Any {
         return Int(n)
     }
 }
+
+func timestamp(_ value: Any?) -> Date? {
+    guard let text = value as? String else { return nil }
+    return (try? Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse(text))
+        ?? (try? Date.ISO8601FormatStyle().parse(text))
+}
