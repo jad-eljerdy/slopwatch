@@ -39,3 +39,10 @@ import Testing
     #expect(f.events["a"]?.model == "first")
     #expect(f.events["b"]?.model == "second")
 }
+
+@Test func quotaOnlyEvent() throws {
+    var f = FileIndex()
+    f.readTokenCount(["rate_limits": ["primary": ["used_percent": 0, "window_minutes": 10080]]], at: Date())
+    #expect(f.quota.windows.first?.title == "Weekly")
+    #expect(f.events.isEmpty)
+}
