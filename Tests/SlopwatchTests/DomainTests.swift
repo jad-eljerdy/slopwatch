@@ -58,3 +58,10 @@ import Testing
     #expect(windowTitle(minutes: 90) == "90-minute")
     #expect(windowTitle(minutes: nil) == "Session")
 }
+
+@Test func quotaExpiry() throws {
+    let start = Date(timeIntervalSince1970: 1000)
+    let limit = Limit(title: "Weekly", used: 90, reset: start.addingTimeInterval(10), observed: start)
+    #expect(limit.isCurrent(at: start))
+    #expect(!limit.isCurrent(at: start.addingTimeInterval(10)))
+}
