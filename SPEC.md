@@ -10,7 +10,7 @@ Find the installed CLI in standard Mac executable directories and the process se
 
 Use the most recent provider reading. Identify each Codex window by its duration. Show the reported percentage and reset time. Support five-hour, weekly, and other reported session windows. Discard expired percentages from the current display.
 
-Read the utilization snapshot in the Claude Code configuration. Support the Claude Code status-line payload as a local source when the cached snapshot is old. Preserve an existing custom status line. Explain how to obtain a new reading when none is available.
+Read the utilization snapshot in the Claude Code configuration. Request fresh limits through the signed-in CLI when its reading is missing or stale. Claude Code can contact Anthropic for the account reading. Send only a usage control request. Support the Claude Code status-line payload as an additional local source. Preserve an existing custom status line.
 
 ## Local activity
 
