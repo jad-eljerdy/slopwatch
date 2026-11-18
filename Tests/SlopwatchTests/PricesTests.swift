@@ -11,3 +11,7 @@ import Testing
     let table = Pricing(table: "bad\t-1\t1\t1\t1\t1\tflat\nshort\t1")
     #expect(table.models.isEmpty)
 }
+
+@Test func claudeDatedAlias() throws {
+    #expect(Pricing.standard.rate(for: "claude-opus-4-5-20251101")?.output == 25)
+}
