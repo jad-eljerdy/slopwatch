@@ -17,8 +17,8 @@ struct SourceDetails: View {
             }
             if !report.quota.windows.isEmpty {
                 ForEach(Array(report.quota.windows.enumerated()), id: \.offset) { _, window in
-                    let percent = (window.used / 100).formatted(.percent.precision(.fractionLength(0...1)))
-                    LabeledContent(window.title, value: percent + " used at last reading")
+                    let percent = (model.settings.display.percent(used: window.used) / 100).formatted(.percent.precision(.fractionLength(0...1)))
+                    LabeledContent(window.title, value: percent + " " + model.settings.display.suffix + " at last reading")
                 }
             }
             Divider()

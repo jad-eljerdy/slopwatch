@@ -35,20 +35,29 @@ struct Dashboard: View {
             HStack {
                 Caption(text: "Subscription limits")
                 Spacer()
-                Text("Used · Resets").font(.system(size: 10)).foregroundStyle(.secondary)
+                Text(model.settings.display.rawValue + (model.settings.showResets ? " · Resets" : "")).font(.system(size: 10)).foregroundStyle(.secondary)
             }
             VStack(spacing: 6) {
-                ForEach(Provider.allCases) { provider in
-                    if model.provider == nil || model.provider == provider {
-                        ProviderCard(provider: provider, report: model.snapshot.reports[provider] ?? ProviderReport(),
-                            now: Date(), loading: model.snapshot.updated == nil) { detail = provider }
-                        if provider == .codex && model.provider == nil { Divider() }
-                    }
+                ForEach(visibleProviders) { provider in
+                    if provider != visibleProviders.first { Divider() }
+                    ProviderCard(provider: provider, report: model.snapshot.reports[provider] ?? ProviderReport(),
+                        now: Date(), loading: model.snapshot.updated == nil, settings: model.settings) { detail = provider }
+                }
+                if visibleProviders.isEmpty {
+                    Text("No connected subscriptions.")
+                        .font(.callout).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             Divider()
             DashboardFooter(model: model)
         }.padding(16)
+    }
+
+    private var visibleProviders: [Provider] {
+        Provider.allCases.filter { provider in
+            (model.provider == nil || model.provider == provider) &&
+                model.settings.shows(model.snapshot.reports[provider]?.connection ?? .checking)
+        }
     }
 
     private var activity: Activity { model.snapshot.activity(model.interval, provider: model.provider) }

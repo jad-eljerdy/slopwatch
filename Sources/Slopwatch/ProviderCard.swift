@@ -5,6 +5,7 @@ struct ProviderCard: View {
     let report: ProviderReport
     let now: Date
     let loading: Bool
+    let settings: SettingsPreferences
     let details: () -> Void
 
     var body: some View {
@@ -20,7 +21,7 @@ struct ProviderCard: View {
             let windows = report.quota.windows.filter { $0.isCurrent(at: now) }
             if !windows.isEmpty && report.connection == .subscription {
                 ForEach(Array(windows.enumerated()), id: \.offset) { _, window in
-                    QuotaMeter(window: window, provider: provider, now: now)
+                    QuotaMeter(window: window, provider: provider, now: now, display: settings.display, showResets: settings.showResets)
                 }
             } else {
                 Text(statusText).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)

@@ -5,6 +5,10 @@ struct QuotaMeter: View {
     let provider: Provider
     let now: Date
 
+    let display: LimitDisplay
+    let showResets: Bool
+    private var percent: Double { display.percent(used: window.used) }
+
     var body: some View {
         HStack(spacing: 8) {
             Text(window.title).font(.system(size: 11, weight: .medium)).frame(minWidth: 46, alignment: .leading)
@@ -12,19 +16,19 @@ struct QuotaMeter: View {
                 ZStack(alignment: .leading) {
                     Capsule().fill(.primary.opacity(0.09))
                     Capsule().fill(window.used >= 90 ? Color.orange : provider.tint)
-                        .frame(width: geometry.size.width * window.used / 100)
+                        .frame(width: geometry.size.width * percent / 100)
                 }
             }.frame(height: 5)
-            Text(window.used / 100, format: .percent.precision(.fractionLength(0)))
-                .font(.system(size: 11, weight: .semibold).monospacedDigit()).frame(width: 35, alignment: .trailing)
-            if let reset = window.reset {
+            Text((percent / 100).formatted(.percent.precision(.fractionLength(0))) + " " + display.suffix)
+                .font(.system(size: 11, weight: .semibold).monospacedDigit()).frame(minWidth: 52, alignment: .trailing)
+            if showResets, let reset = window.reset {
                 Text(Display.reset(reset, now: now)).font(.system(size: 10)).foregroundStyle(.secondary)
                     .frame(minWidth: 62, alignment: .trailing)
             }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(window.title + " limit")
-        .accessibilityValue("\(Int(window.used.rounded())) percent used" + (window.reset.map { ", resets " + $0.formatted() } ?? ""))
+        .accessibilityValue("\(Int(percent.rounded())) percent \(display.suffix)" + (showResets ? window.reset.map { ", resets " + $0.formatted() } ?? "" : ""))
         .help("Observed " + window.observed.formatted() + (window.reset.map { " · Resets " + $0.formatted() } ?? ""))
     }
 }
