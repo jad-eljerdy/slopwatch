@@ -21,3 +21,12 @@ import Testing
     #expect(rows == [Data("ok".utf8)])
     #expect(stream.complete == 12)
 }
+
+@Test func exactMaximum() throws {
+    var stream = LineStream(maximum: 2)
+    var rows = [Data]()
+    stream.feed(Data("12\n\n".utf8)) { rows.append($0) }
+    #expect(rows.count == 1)
+    #expect(stream.skipped == 0)
+    #expect(stream.complete == 4)
+}
