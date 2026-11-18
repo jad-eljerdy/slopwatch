@@ -21,3 +21,12 @@ extension Display {
         return money(activity.dollars) + (activity.unpriced > 0 ? "+" : "")
     }
 }
+
+extension Display {
+    static func reset(_ date: Date, now: Date) -> String {
+        if Calendar.current.isDate(date, inSameDayAs: now) {
+            return date.formatted(date: .omitted, time: .shortened)
+        }
+        return date.formatted(.dateTime.weekday(.abbreviated).hour().minute())
+    }
+}
