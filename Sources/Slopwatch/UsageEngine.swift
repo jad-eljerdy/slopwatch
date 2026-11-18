@@ -15,7 +15,8 @@ actor UsageEngine {
 }
 
 extension UsageEngine {
-    func refresh(now: Date = Date(), forceAuth: Bool = false) -> Snapshot {
+    func refresh(now reference: Date? = nil, forceAuth: Bool = false) -> Snapshot {
+        let now = reference ?? Date()
         if !loaded { files = cache?.load() ?? [:]; loaded = true }
         let discovery = paths.history(since: now.addingTimeInterval(-Interval.month.seconds))
         var keep = Set<String>()
