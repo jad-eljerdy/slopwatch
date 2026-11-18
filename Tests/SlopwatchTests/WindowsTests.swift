@@ -27,3 +27,12 @@ import Testing
     #expect(values[.week]?.tokens == 0)
     #expect(values[.month]?.tokens == 2)
 }
+
+@Test func chartSum() throws {
+    let now = Date()
+    let one = UsageEvent(id: "x", time: now, model: "unknown", tokens: Tokens(read: 123))
+    let report = try #require(Activity.rollup(["x": one].values, now: now, prices: .standard)[.day])
+    #expect(report.bins.reduce(0, +) == report.tokens)
+    #expect(report.bins.last == 123)
+    #expect(report.unpriced == 123)
+}
