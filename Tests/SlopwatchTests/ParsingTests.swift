@@ -61,3 +61,12 @@ import Testing
     f.readQuota(["primary": ["used_percent": 200]], at: now.addingTimeInterval(2))
     #expect(f.quota.windows.first?.used == 30)
 }
+
+@Test func claudeRevisions() throws {
+    var f = FileIndex()
+    for n in [1, 12, 2] {
+        f.readClaude(["type": "assistant", "message": ["id": "m", "model": "claude-opus-5", "usage": ["output_tokens": n]]], at: Date())
+    }
+    #expect(f.events.count == 1)
+    #expect(f.events.values.first?.tokens.total == 12)
+}
