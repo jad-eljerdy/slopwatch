@@ -28,7 +28,10 @@ extension UsageEngine {
             let previous = files[key]
             if previous?.modified == file.modified, previous?.size == file.size, previous?.inode == file.inode { continue }
             do {
-                files[key] = try HistoryReader.read(file, previous: previous, paths: paths)
+                var index = try HistoryReader.read(file, previous: previous, paths: paths)
+                let cutoff = now.addingTimeInterval(-Interval.month.seconds)
+                index.events = index.events.filter { $0.value.time > cutoff }
+                files[key] = index
                 changed = true
             } catch {
                 failures += 1
