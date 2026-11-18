@@ -27,3 +27,7 @@ Bundle a dated table of public standard API rates in USD per million tokens. Sup
 ## Interface
 
 Use SwiftUI and AppKit. Provide a recognizable monochrome menu bar symbol. Place the time range, token total, API value, activity chart, and quota meters in one compact panel. Support keyboard controls, VoiceOver, light appearance, and dark appearance.
+
+## Performance and recovery
+
+Open the panel immediately. Read files off the main thread. Reuse parsed records for unchanged files. Resume growing plain logs at the last complete line. Rebuild replaced or truncated files. Keep a bounded buffer for long records. Expose incomplete data and retry on refresh.
