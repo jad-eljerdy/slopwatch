@@ -5,3 +5,4 @@ gpt-6.2-sol	2	0.1	2.5	5	10	openai
 gpt-6.1-sol	2	0.1	2.5	5	10	openai
 gpt-6.1-terra	1	0.05	1.25	2.5	5	openai
 gpt-6-astra	10	1	12.5	25	50	openai
+gpt-6-sol	2	0.2	2.5	5	10	openai
