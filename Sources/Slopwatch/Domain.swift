@@ -52,3 +52,9 @@ enum Connection: String, Sendable {
     case missing = "CLI missing"
     case unavailable = "Status unavailable"
 }
+
+struct Quota: Codable, Sendable {
+    var observed = Date.distantPast
+    var windows: [Limit] = []
+    var plan: String?
+}
