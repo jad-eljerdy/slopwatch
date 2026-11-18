@@ -7,6 +7,8 @@ actor UsageEngine {
     private var loaded = false
     private var auth: [Provider: Connection] = [:]
     private var authChecked = Date.distantPast
+    private var cacheSaved = Date.distantPast
+    private var cacheDirty = false
 
     init(paths: LocalPaths = LocalPaths(), cache: HistoryCache? = .local) {
         self.paths = paths
