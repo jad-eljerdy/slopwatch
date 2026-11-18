@@ -21,3 +21,12 @@ extension Tokens {
         output = values.count("output_tokens")
     }
 }
+
+extension Tokens {
+    func since(_ old: Tokens?) -> Self {
+        guard let old, total >= old.total else { return self }
+        return Self(input: max(0, input - old.input), read: max(0, read - old.read),
+                    shortWrite: max(0, shortWrite - old.shortWrite), longWrite: max(0, longWrite - old.longWrite),
+                    output: max(0, output - old.output))
+    }
+}
