@@ -86,9 +86,9 @@ extension LocalPaths {
                 return report
             }
             guard hint["accountUuid"] as? String == account, let held = hint["holdsUnusedReset"] as? Bool,
-                  let checked = hint.number("checkedAt"), let until = hint.number("validUntil"),
+                  held, let checked = hint.number("checkedAt"), let until = hint.number("validUntil"),
                   checked <= now.timeIntervalSince1970 * 1000, until > now.timeIntervalSince1970 * 1000 else { return nil }
-            return BankedResets(grants: [], unlisted: 0, presenceOnly: held,
+            return BankedResets(grants: [], unlisted: 0, presenceOnly: true,
                 validUntil: Date(timeIntervalSince1970: until / 1000))
         }
         return nil
