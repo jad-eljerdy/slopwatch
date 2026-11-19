@@ -22,6 +22,10 @@ struct SourceDetails: View {
                 }
             }
             Divider()
+            if report.connection == .subscription {
+                ResetDetails(provider: provider, inventory: report.quota.bankedResets, now: Date())
+                Divider()
+            }
             Text(provider == .codex ? "Codex records limits in local session logs. Use Codex to get a new reading."
                  : "Slopwatch asks your signed-in Claude Code CLI for subscription limits. Select Refresh usage to check again.")
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)

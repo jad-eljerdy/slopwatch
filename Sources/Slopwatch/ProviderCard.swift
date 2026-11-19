@@ -26,6 +26,22 @@ struct ProviderCard: View {
             } else {
                 Text(statusText).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
+            if report.connection == .subscription, let inventory = report.quota.bankedResets,
+               inventory.hasBankedResets(at: now), let summary = inventory.summary(at: now) {
+                Button(action: details) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "ticket")
+                        Text(summary).fontWeight(.semibold)
+                        Spacer()
+                        if let expiry = inventory.active(at: now).first?.expires {
+                            Text("Expires " + expiry.formatted(.dateTime.month().day())).foregroundStyle(.secondary)
+                        }
+                        Image(systemName: "chevron.right").imageScale(.small)
+                    }
+                    .font(.caption).padding(7)
+                    .background(provider.tint.opacity(0.11), in: RoundedRectangle(cornerRadius: 6))
+                }.buttonStyle(.plain)
+            }
         }.padding(.vertical, 5)
     }
 }

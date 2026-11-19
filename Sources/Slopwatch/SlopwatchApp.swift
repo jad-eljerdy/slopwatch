@@ -43,6 +43,14 @@ extension SlopwatchApp {
                 let a = report.periods[interval] ?? Activity()
                 print(" ", interval.label, a.tokens, "tokens", Display.estimate(a), "unpriced", a.unpriced)
             }
+            if report.connection == .subscription {
+                let now = snapshot.updated ?? Date()
+                let resets = report.quota.bankedResets
+                print(" ", resets?.summary(at: now) ?? "Banked reset balance unavailable")
+                for grant in resets?.active(at: now) ?? [] {
+                    print(" ", grant.title, "×", grant.quantity, grant.expires.map { "expires " + $0.formatted() } ?? "")
+                }
+            }
             for limit in report.quota.windows {
                 let current = limit.isCurrent(at: snapshot.updated ?? Date())
                 print(" ", limit.title, current ? "\(limit.used)% used" : "expired", "observed", limit.observed.formatted())
