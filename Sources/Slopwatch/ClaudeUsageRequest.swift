@@ -44,7 +44,7 @@ enum ClaudeUsageRequest {
             }
             let writer = input.fileHandleForWriting
             _ = fcntl(writer.fileDescriptor, F_SETNOSIGPIPE, 1)
-            let request = #"{"type":"control_request","request_id":"slopwatch-quota","request":{"subtype":"get_usage"}}"#
+            let request = #"{"type":"control_request","request_id":"slopwatch-quota","request":{"subtype":"get_usage","skip_behaviors":true}}"#
             try writer.write(contentsOf: Data((request + "\n").utf8))
             try writer.close()
             return receive(from: output.fileHandleForReading)
@@ -53,23 +53,10 @@ enum ClaudeUsageRequest {
 
     private static func receive(from handle: FileHandle) -> Quota? {
         let deadline = ContinuousClock.now + .seconds(8)
-        var descriptor = pollfd(fd: handle.fileDescriptor, events: Int16(POLLIN), revents: 0)
-        var buffer = [UInt8](repeating: 0, count: 8192)
         var pending = Data()
-        var result: Quota?
-        while ContinuousClock.now < deadline {
-            let ready = poll(&descriptor, 1, 100)
-            if ready < 0 && errno != EINTR { break }
-            guard ready > 0 else { continue }
-            let count = buffer.withUnsafeMutableBytes { Darwin.read(handle.fileDescriptor, $0.baseAddress, $0.count) }
-            guard count > 0 else { break }
-            pending.append(contentsOf: buffer.prefix(count))
-            while let end = pending.firstIndex(of: 10) {
-                if let quota = reading(from: pending[..<end], observed: Date()) { result = quota }
-                pending.removeSubrange(...end)
-            }
-            if pending.count > 1_048_576 { break }
+        while let line = CLIResponseLine.read(handle, buffer: &pending, until: deadline) {
+            if let reading = reading(from: line, observed: Date()) { return reading }
         }
-        return result
+        return nil
     }
 }

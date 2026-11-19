@@ -22,7 +22,9 @@ extension ClaudeQuota {
             let reset = timestamp(w["resets_at"]) ?? w.number("resets_at").map(Date.init(timeIntervalSince1970:))
             return Limit(title: title, used: used, reset: reset, observed: observed)
         }
-        return windows.isEmpty ? nil : Quota(observed: observed, windows: windows)
+        let resets = BankedResets.claude(fields.object("cedar_ember"))
+        guard !windows.isEmpty || resets != nil else { return nil }
+        return Quota(observed: observed, windows: windows, bankedResets: resets)
     }
 }
 

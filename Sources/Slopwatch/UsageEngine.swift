@@ -95,12 +95,17 @@ extension UsageEngine {
                     quota = reading
                 }
             }
+            if provider == .codex && auth[provider] == .subscription {
+                quota.bankedResets = CodexResetRequest.fetch(paths: paths)
+            }
             if provider == .claude && auth[provider] == .subscription {
+                quota.bankedResets = nil
                 if let reading = ClaudeUsageRequest.fetch(paths: paths) {
                     quota = reading
                 } else {
                     quotaIssue = "Claude Code could not refresh its subscription limits."
                 }
+                if quota.bankedResets == nil { quota.bankedResets = paths.claudeResetHint(now: Date()) }
             }
             quotas[provider] = quota
         }

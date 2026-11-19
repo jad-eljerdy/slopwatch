@@ -57,6 +57,7 @@ struct Quota: Codable, Sendable {
     var observed = Date.distantPast
     var windows: [Limit] = []
     var plan: String?
+    var bankedResets: BankedResets?
 }
 
 func windowTitle(minutes: Int?) -> String {
