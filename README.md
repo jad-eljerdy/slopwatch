@@ -13,6 +13,7 @@ So I put the numbers next to the clock. Click the stopwatch. Read the numbers. C
 ## What you get
 
 - **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. Slopwatch finds your signed-in CLIs automatically.
+- **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption. If the CLI omits the balance, provider details show that it is unavailable.
 - **Token counts.** See the last 24 hours, 7 days, or 30 days. View both providers together or select one.
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
