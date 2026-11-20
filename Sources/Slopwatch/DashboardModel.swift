@@ -5,7 +5,8 @@ import Sparkle
 @MainActor @Observable
 final class DashboardModel {
     let claudePage = ClaudePageReader()
-    let settings = SettingsPreferences()
+    let settings: SettingsPreferences
+    let notifications: ResetNotifications
     var snapshot = Snapshot()
     var interval: Interval
     var provider: Provider?
@@ -19,6 +20,9 @@ final class DashboardModel {
     private var pendingCheck = false
 
     init() {
+        let preferences = SettingsPreferences()
+        settings = preferences
+        notifications = ResetNotifications(preferences: preferences)
         interval = Interval(rawValue: UserDefaults.standard.integer(forKey: "interval")) ?? .day
     }
 
@@ -42,6 +46,7 @@ extension DashboardModel {
         refreshing = true
         refreshTask = Task {
             snapshot = await engine.refresh(checkLimits: checkLimits)
+            if checkLimits { notifications.refresh(snapshot: snapshot) }
             refreshing = false
             refreshTask = nil
             if pendingCheck {

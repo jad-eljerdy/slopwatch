@@ -1,10 +1,12 @@
 import AppKit
 import SwiftUI
+import UserNotifications
 import Sparkle
 
 @MainActor
 final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let model = DashboardModel()
+    private let reminderPresentation = ReminderPresentation()
     private var item: NSStatusItem?
     private var settingsWindow: NSWindow?
     private let popover = NSPopover()
@@ -15,6 +17,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var polling: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if Bundle.main.bundleIdentifier != nil { UNUserNotificationCenter.current().delegate = reminderPresentation }
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         self.item = item
         item.autosaveName = "Slopwatch"
