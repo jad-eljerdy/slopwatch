@@ -5,12 +5,18 @@ import Observation
 @MainActor @Observable
 final class ClaudePageReader {
     private let defaults: UserDefaults
+    private let frontBrowserPID: @MainActor () -> pid_t?
     private var task: Task<Void, Never>?
     private(set) var enabled: Bool
     private(set) var balance: ClaudePageBalance?
     private(set) var message: String?
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, frontBrowserPID: @escaping @MainActor () -> pid_t? = {
+        guard let app = NSWorkspace.shared.frontmostApplication, let id = app.bundleIdentifier,
+              ClaudeUsageWindow.browsers.contains(id) else { return nil }
+        return app.processIdentifier
+    }) {
+        self.frontBrowserPID = frontBrowserPID
         self.defaults = defaults
         enabled = defaults.bool(forKey: "readClaudeUsagePage")
         if let data = defaults.data(forKey: "claudePageBalance"),
@@ -65,11 +71,9 @@ final class ClaudePageReader {
             return
         }
         if message == permissionHint { message = nil }
-        guard let app = NSWorkspace.shared.frontmostApplication, let bundle = app.bundleIdentifier,
-              ClaudeUsageWindow.browsers.contains(bundle) else { return }
-        let pid = app.processIdentifier
+        guard let pid = frontBrowserPID() else { return }
         let result = await Task.detached(priority: .utility) { ClaudeUsageWindow.read(pid: pid) }.value
-        guard enabled, !Task.isCancelled, pid == NSWorkspace.shared.frontmostApplication?.processIdentifier else { return }
+        guard enabled, !Task.isCancelled, pid == frontBrowserPID() else { return }
         switch result {
         case .otherPage: break
         case .usagePage(let count):
