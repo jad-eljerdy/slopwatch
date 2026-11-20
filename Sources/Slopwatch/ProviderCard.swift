@@ -6,6 +6,7 @@ struct ProviderCard: View {
     let now: Date
     let loading: Bool
     let settings: SettingsPreferences
+    let pageBalance: ClaudePageBalance?
     let details: () -> Void
 
     var body: some View {
@@ -26,27 +27,34 @@ struct ProviderCard: View {
             } else {
                 Text(statusText).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
-            if report.connection == .subscription, let inventory = report.quota.bankedResets,
-               inventory.hasBankedResets(at: now), let summary = inventory.summary(at: now) {
-                Button(action: details) {
-                    HStack(spacing: 5) {
-                        Image(systemName: "ticket")
-                        Text(summary).fontWeight(.semibold)
-                        Spacer()
-                        if let expiry = inventory.active(at: now).first?.expires {
-                            Text("Expires " + expiry.formatted(.dateTime.month().day())).foregroundStyle(.secondary)
-                        }
-                        Image(systemName: "chevron.right").imageScale(.small)
+            if report.connection == .subscription {
+                if let inventory = report.quota.bankedResets, let summary = inventory.summary(at: now) {
+                    if inventory.hasBankedResets(at: now) {
+                        let expiry = inventory.active(at: now).first?.expires
+                        resetButton(summary, note: expiry.map { "Expires " + $0.formatted(.dateTime.month().day()) })
                     }
-                    .font(.caption).padding(7)
-                    .background(provider.tint.opacity(0.11), in: RoundedRectangle(cornerRadius: 6))
-                }.buttonStyle(.plain)
+                } else if let balance = pageBalance, balance.isFresh(at: now), balance.count > 0 {
+                    resetButton(balance.label, note: balance.source.rawValue + " · " + balance.seen.formatted(date: .omitted, time: .shortened))
+                }
             }
         }.padding(.vertical, 5)
     }
 }
 
 extension ProviderCard {
+    private func resetButton(_ summary: String, note: String?) -> some View {
+        Button(action: details) {
+            HStack(spacing: 5) {
+                Image(systemName: "ticket")
+                Text(summary).fontWeight(.semibold)
+                Spacer()
+                if let note { Text(note).foregroundStyle(.secondary) }
+                Image(systemName: "chevron.right").imageScale(.small)
+            }.font(.caption).padding(7)
+                .background(provider.tint.opacity(0.11), in: RoundedRectangle(cornerRadius: 6))
+        }.buttonStyle(.plain)
+    }
+
     private var statusText: String {
         if loading { return "Reading local usage…" }
         switch report.connection {

@@ -37,6 +37,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                 NSAlert(error: error).runModal()
             }
         }
+        model.claudePage.start()
         model.refresh()
         startPolling()
     }

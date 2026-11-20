@@ -23,7 +23,8 @@ struct SourceDetails: View {
             }
             Divider()
             if report.connection == .subscription {
-                ResetDetails(provider: provider, inventory: report.quota.bankedResets, now: Date())
+                ResetDetails(provider: provider, inventory: report.quota.bankedResets, now: Date(),
+                    pageReader: provider == .claude ? model.claudePage : nil)
                 Divider()
             }
             Text(provider == .codex ? "Codex records limits in local session logs. Use Codex to get a new reading."

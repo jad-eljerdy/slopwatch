@@ -4,6 +4,7 @@ import Sparkle
 
 @MainActor @Observable
 final class DashboardModel {
+    let claudePage = ClaudePageReader()
     let settings = SettingsPreferences()
     var snapshot = Snapshot()
     var interval: Interval

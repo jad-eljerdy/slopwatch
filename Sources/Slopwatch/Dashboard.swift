@@ -42,7 +42,8 @@ struct Dashboard: View {
                 ForEach(visibleProviders) { provider in
                     if provider != visibleProviders.first { Divider() }
                     ProviderCard(provider: provider, report: model.snapshot.reports[provider] ?? ProviderReport(),
-                        now: Date(), loading: model.snapshot.updated == nil, settings: model.settings) { detail = provider }
+                        now: Date(), loading: model.snapshot.updated == nil, settings: model.settings,
+                        pageBalance: provider == .claude ? model.claudePage.balance : nil) { detail = provider }
                 }
                 if visibleProviders.isEmpty {
                     Text("No connected subscriptions.")
