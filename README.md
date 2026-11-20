@@ -25,6 +25,8 @@ Open the menu bar panel and select **… → Settings…**. In **General**, choo
 
 Limit bars show the percentage left by default. Switch to **Used** to see the percentage used. You can also hide reset times and hide subscriptions that are not connected. Both providers still contribute to activity totals. **About** shows the installed version and build number.
 
+In **Notifications**, choose when to receive a reminder before a banked reset expires. The default is 24 hours. Allow notifications when macOS asks. Slopwatch groups resets from the same provider that expire at the same time. A reset must have a reported expiry date for Slopwatch to schedule a reminder.
+
 ### When Claude Code omits the reset balance
 
 Open Claude source details and expand **Read balance from usage page**. Open [Claude usage settings](https://claude.ai/settings/usage) in your browser. Copy the English **Limit resets** heading and its available count, then select **Paste** in Slopwatch.

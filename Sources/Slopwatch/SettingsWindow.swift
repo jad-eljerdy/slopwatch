@@ -9,6 +9,7 @@ enum SettingsWindow {
         tabs.canPropagateSelectedChildViewControllerTitle = false
         tabs.tabStyle = .toolbar
         tabs.addTabViewItem(tab("General", symbol: "gearshape", view: GeneralSettings(model: model)))
+        tabs.addTabViewItem(tab("Notifications", symbol: "bell", view: NotificationSettings(model: model)))
         tabs.addTabViewItem(tab("About", symbol: "info.circle", view: AboutSettings()))
 
         let window = NSWindow(contentViewController: tabs)
