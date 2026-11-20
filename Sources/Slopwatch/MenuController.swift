@@ -15,14 +15,14 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private weak var observedWindow: NSWindow?
     private let updateChecks = DailyUpdateChecks()
     private var polling: Task<Void, Never>?
+    private var glanceExpiry: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if Bundle.main.bundleIdentifier != nil { UNUserNotificationCenter.current().delegate = reminderPresentation }
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         self.item = item
         item.autosaveName = "Slopwatch"
-        item.button?.image = menuBarImage()
-        item.button?.toolTip = "Slopwatch · Subscription usage"
+        observeMenuBar()
         item.button?.setAccessibilityLabel("Slopwatch")
         item.button?.target = self
         item.button?.action = #selector(toggle)
@@ -43,6 +43,44 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         model.claudePage.start()
         model.refresh()
         startPolling()
+    }
+
+    private func observeMenuBar() {
+        withObservationTracking {
+            updateMenuBar()
+        } onChange: { [weak self] in
+            Task { @MainActor in self?.observeMenuBar() }
+        }
+    }
+
+    private func updateMenuBar() {
+        guard let item, let button = item.button else { return }
+        glanceExpiry?.cancel()
+        let providers = model.settings.menuBarDisplay.providers
+        if providers.isEmpty {
+            item.length = NSStatusItem.squareLength
+            button.title = ""
+            button.image = menuBarImage()
+            button.toolTip = "Slopwatch · Subscription usage"
+            button.setAccessibilityValue(nil)
+            return
+        }
+
+        let now = Date()
+        let readings = providers.map { MenuBarReading(provider: $0, report: model.snapshot.reports[$0], now: now) }
+        item.length = NSStatusItem.variableLength
+        button.image = nil
+        button.attributedTitle = glanceTitle(readings)
+        let descriptions = readings.map(\.description)
+        button.toolTip = descriptions.joined(separator: "\n")
+        button.setAccessibilityValue(descriptions.joined(separator: ". "))
+
+        if let expiry = readings.compactMap(\.validUntil).min() {
+            glanceExpiry = Task { [weak self] in
+                do { try await Task.sleep(for: .seconds(max(0, expiry.timeIntervalSinceNow))) } catch { return }
+                self?.updateMenuBar()
+            }
+        }
     }
 
     @objc private func toggle() {
@@ -120,6 +158,7 @@ extension MenuController {
     }
 
     @objc private func didWake() {
+        updateMenuBar()
         updateChecks.checkIfDue()
         model.refresh(force: true)
     }
@@ -127,6 +166,7 @@ extension MenuController {
     func applicationWillTerminate(_ notification: Notification) {
         updateChecks.stop()
         polling?.cancel()
+        glanceExpiry?.cancel()
         NSWorkspace.shared.notificationCenter.removeObserver(self)
     }
 }

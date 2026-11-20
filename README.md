@@ -23,6 +23,8 @@ The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Sl
 
 Open the menu bar panel and select **… → Settings…**. In **General**, choose how often Slopwatch checks subscription limits. The default is 5 minutes. You can select 1, 3, 5, 10, 30, or 60 minutes. Select **Refresh usage** to check immediately.
 
+Under **Show in menu bar**, choose Codex, Claude, both providers, or the Slopwatch icon. By default, both provider icons show the lowest percentage left across their current limits. Hover over the icons to see which limit each percentage represents. A dash means the provider has no current reading.
+
 Limit bars show the percentage left by default. Switch to **Used** to see the percentage used. You can also hide reset times and hide subscriptions that are not connected. Both providers still contribute to activity totals. **About** shows the installed version and build number.
 
 In **Notifications**, choose when to receive a reminder before a banked reset expires. The default is 24 hours. Allow notifications when macOS asks. Slopwatch groups resets from the same provider that expire at the same time. A reset must have a reported expiry date for Slopwatch to schedule a reminder.
