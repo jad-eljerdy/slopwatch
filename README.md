@@ -13,7 +13,7 @@ So I put the numbers next to the clock. Click the stopwatch. Read the numbers. C
 ## What you get
 
 - **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. Slopwatch finds your signed-in CLIs automatically.
-- **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption. If the CLI omits the balance, provider details show that it is unavailable.
+- **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption. If Claude Code omits the balance, open Claude source details and expand **Read balance from usage page**. Open [Claude usage settings](https://claude.ai/settings/usage) in your browser. Copy the English **Limit resets** heading and its available count, then select **Paste** in Slopwatch. You can also enable the automatic reader and grant macOS Accessibility access. While the usage tab is in front, Slopwatch reads its displayed total about every six seconds. The browser account can differ from your CLI account. Slopwatch labels the source and time, saves only the count, source, and timestamp on your Mac, and hides the reading after 15 minutes.
 - **Token counts.** See the last 24 hours, 7 days, or 30 days. View both providers together or select one.
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
