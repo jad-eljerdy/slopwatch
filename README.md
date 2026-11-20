@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.1.5 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.5/Slopwatch-1.1.5.dmg)**
+**[Download Slopwatch v1.1.6 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.6/Slopwatch-1.1.6.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -8,7 +8,7 @@ Requires macOS 26 or later on Apple silicon or Intel. Open the DMG, drag Slopwat
 
 I tried the other usage trackers. They sucked. I wanted to know if Claude could finish one more code review before my limit reset. Somehow I ended up configuring a dashboard. I already pay two robots to overcomplicate things. That position is filled.
 
-So I put the numbers next to the clock. Click the stopwatch. Read the numbers. Congratulations on completing onboarding.
+So I put the numbers next to the clock. Click Slopwatch in the menu bar. Read the numbers. Congratulations on completing onboarding.
 
 ## What you get
 
