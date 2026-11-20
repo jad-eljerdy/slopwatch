@@ -11,6 +11,7 @@ import Testing
     #expect(settings.reminderLead == .day)
     #expect(settings.checkInterval == .five)
     #expect(settings.display == .remaining)
+    #expect(settings.menuBarDisplay == .both)
     #expect(!settings.hideUnused)
     #expect(settings.showResets)
     #expect(settings.shows(.missing))
@@ -18,6 +19,7 @@ import Testing
     settings.reminderLead = .six
     settings.checkInterval = .thirty
     settings.display = .used
+    settings.menuBarDisplay = .claude
     settings.hideUnused = true
     settings.showResets = false
     let reopened = SettingsPreferences(defaults: defaults)
@@ -25,6 +27,7 @@ import Testing
     #expect(reopened.reminderLead == .six)
     #expect(reopened.checkInterval == .thirty)
     #expect(reopened.display == .used)
+    #expect(reopened.menuBarDisplay == .claude)
     #expect(!reopened.showResets)
     #expect(reopened.shows(.subscription) && reopened.shows(.checking))
     for connection in [Connection.missing, .api, .signedOut, .unavailable] {

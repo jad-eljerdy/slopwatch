@@ -46,6 +46,12 @@ private struct GeneralSettings: View {
                     }
                 }
             }
+            Section("Menu bar") {
+                Picker("Show in menu bar", selection: $settings.menuBarDisplay) {
+                    ForEach(MenuBarDisplay.allCases, id: \.self) { mode in Text(mode.rawValue).tag(mode) }
+                }
+                .help("Shows the lowest percentage left across each provider’s current limits.")
+            }
             Section("Menu bar panel") {
                 Picker("Limit bars show", selection: $settings.display) {
                     ForEach(LimitDisplay.allCases, id: \.self) { mode in Text(mode.rawValue).tag(mode) }

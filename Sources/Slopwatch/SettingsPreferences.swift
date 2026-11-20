@@ -31,6 +31,9 @@ final class SettingsPreferences {
     var checkInterval: LimitCheckInterval {
         didSet { defaults.set(checkInterval.rawValue, forKey: "limitCheckMinutes") }
     }
+    var menuBarDisplay: MenuBarDisplay {
+        didSet { defaults.set(menuBarDisplay.rawValue, forKey: "menuBarDisplay") }
+    }
     var display: LimitDisplay {
         didSet { defaults.set(display.rawValue, forKey: "limitDisplay") }
     }
@@ -46,6 +49,7 @@ final class SettingsPreferences {
         resetRemindersEnabled = defaults.object(forKey: "resetRemindersEnabled") as? Bool ?? true
         reminderLead = ReminderLead(rawValue: defaults.integer(forKey: "resetReminderHours")) ?? .day
         checkInterval = LimitCheckInterval(rawValue: defaults.integer(forKey: "limitCheckMinutes")) ?? .five
+        menuBarDisplay = defaults.string(forKey: "menuBarDisplay").flatMap(MenuBarDisplay.init(rawValue:)) ?? .both
         display = LimitDisplay(rawValue: defaults.string(forKey: "limitDisplay") ?? "") ?? .remaining
         hideUnused = defaults.bool(forKey: "hideUnusedSubscriptions")
         showResets = defaults.object(forKey: "showResetTimes") as? Bool ?? true
