@@ -13,7 +13,7 @@ struct ProviderIcon: View {
     let provider: Provider
     let size: CGFloat
 
-    private static let icons: [Provider: NSImage] = {
+    static let icons: [Provider: NSImage] = {
         var images: [Provider: NSImage] = [:]
         for provider in Provider.allCases {
             let name = provider == .codex ? "ChatGPT" : "Claude"
