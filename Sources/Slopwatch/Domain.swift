@@ -7,11 +7,14 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     var id: Self { self }
 }
 
-enum Interval: Int, CaseIterable, Identifiable, Sendable {
-    case day = 1, week = 7, month = 30
+enum Interval: Double, CaseIterable, Identifiable, Sendable {
+    case halfDay = 0.5, day = 1, week = 7, month = 30
     var id: Self { self }
-    var seconds: Double { Double(rawValue) * 86_400 }
-    var label: String { self == .day ? "24h" : String(rawValue) + "d" }
+    var seconds: Double { rawValue * 86_400 }
+    private var usesHours: Bool { rawValue <= 1 }
+    private var amount: Int { Int(usesHours ? rawValue * 24 : rawValue) }
+    var label: String { String(amount) + (usesHours ? "h" : "d") }
+    var durationLabel: String { String(amount) + (usesHours ? " hours" : " days") }
 }
 
 struct Tokens: Codable, Equatable, Sendable {

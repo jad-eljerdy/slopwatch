@@ -23,7 +23,7 @@ final class DashboardModel {
         let preferences = SettingsPreferences()
         settings = preferences
         notifications = ResetNotifications(preferences: preferences)
-        interval = Interval(rawValue: UserDefaults.standard.integer(forKey: "interval")) ?? .day
+        interval = Interval(rawValue: UserDefaults.standard.double(forKey: "interval")) ?? .day
     }
 
     func select(_ interval: Interval) {
