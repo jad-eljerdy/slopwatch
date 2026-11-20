@@ -7,16 +7,22 @@ import Testing
     let defaults = try #require(UserDefaults(suiteName: suite))
     defer { defaults.removePersistentDomain(forName: suite) }
     let settings = SettingsPreferences(defaults: defaults)
+    #expect(settings.resetRemindersEnabled)
+    #expect(settings.reminderLead == .day)
     #expect(settings.checkInterval == .five)
     #expect(settings.display == .remaining)
     #expect(!settings.hideUnused)
     #expect(settings.showResets)
     #expect(settings.shows(.missing))
+    settings.resetRemindersEnabled = false
+    settings.reminderLead = .six
     settings.checkInterval = .thirty
     settings.display = .used
     settings.hideUnused = true
     settings.showResets = false
     let reopened = SettingsPreferences(defaults: defaults)
+    #expect(!reopened.resetRemindersEnabled)
+    #expect(reopened.reminderLead == .six)
     #expect(reopened.checkInterval == .thirty)
     #expect(reopened.display == .used)
     #expect(!reopened.showResets)

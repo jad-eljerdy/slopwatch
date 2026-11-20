@@ -22,6 +22,12 @@ enum LimitDisplay: String, CaseIterable {
 @MainActor @Observable
 final class SettingsPreferences {
     private let defaults: UserDefaults
+    var resetRemindersEnabled: Bool {
+        didSet { defaults.set(resetRemindersEnabled, forKey: "resetRemindersEnabled") }
+    }
+    var reminderLead: ReminderLead {
+        didSet { defaults.set(reminderLead.rawValue, forKey: "resetReminderHours") }
+    }
     var checkInterval: LimitCheckInterval {
         didSet { defaults.set(checkInterval.rawValue, forKey: "limitCheckMinutes") }
     }
@@ -37,6 +43,8 @@ final class SettingsPreferences {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        resetRemindersEnabled = defaults.object(forKey: "resetRemindersEnabled") as? Bool ?? true
+        reminderLead = ReminderLead(rawValue: defaults.integer(forKey: "resetReminderHours")) ?? .day
         checkInterval = LimitCheckInterval(rawValue: defaults.integer(forKey: "limitCheckMinutes")) ?? .five
         display = LimitDisplay(rawValue: defaults.string(forKey: "limitDisplay") ?? "") ?? .remaining
         hideUnused = defaults.bool(forKey: "hideUnusedSubscriptions")
