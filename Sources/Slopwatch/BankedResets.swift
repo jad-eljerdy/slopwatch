@@ -51,19 +51,23 @@ struct BankedResets: Sendable, Codable {
         return Self(grants: grants, unlisted: total - grants.count)
     }
 
-    static func claude(_ fields: Fields) -> Self? {
-        guard let rows = fields["grants"] as? [Fields] else { return nil }
+    static func claude(_ fields: Fields, now: Date = Date()) -> Self? {
+        guard fields["eligible"] as? Bool == true, let rows = fields["grants"] as? [Fields] else { return nil }
         var grants: [ResetGrant] = []
         var seen = Set<String>()
         for row in rows {
             guard let id = row["id"] as? String, !id.isEmpty, let count = quantity(row, "resets_left"),
                   seen.insert(id).inserted else { return nil }
-            if count == 0 { continue }
+            if count == 0 || row["paused"] as? Bool == true { continue }
+            if row["starts_at"] is String {
+                guard let start = timestamp(row["starts_at"]) else { return nil }
+                if start > now { continue }
+            }
             let expires = timestamp(row["ends_at"])
             if row["ends_at"] is String && expires == nil { return nil }
             let title = row["label"] as? String ?? ""
             grants.append(ResetGrant(id: id, title: title.isEmpty ? "Claude reset" : title, quantity: count,
-                expires: expires, heldOnly: row["usable_now"] as? Bool != true || row["paused"] as? Bool == true))
+                expires: expires, heldOnly: row["usable_now"] as? Bool != true))
         }
         return Self(grants: grants, unlisted: 0)
     }
@@ -81,7 +85,7 @@ extension LocalPaths {
             if cache["accountUuid"] as? String == account, let time = cache.number("fetchedAtMs"),
                time <= nowMs, nowMs - time <= 300_000,
                hint["accountUuid"] as? String != account || time >= (hint.number("checkedAt") ?? 0),
-               var report = BankedResets.claude(cache.object("utilization").object("cedar_ember")) {
+               var report = BankedResets.claude(cache.object("utilization").object("cedar_ember"), now: now) {
                 report.validUntil = Date(timeIntervalSince1970: time / 1000 + 300)
                 return report
             }

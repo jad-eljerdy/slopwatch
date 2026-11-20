@@ -24,12 +24,17 @@ import Testing
         ["id": "weekly", "label": "Weekly reset", "resets_left": 2, "ends_at": "2027-01-01T00:00:00Z", "usable_now": false],
         ["id": "spent", "resets_left": 0],
     ]
-    let reading = try #require(ClaudeQuota.parse(["cedar_ember": ["grants": grants]], observed: now))
+    #expect(BankedResets.claude(["eligible": false, "grants": grants]) == nil)
+    let inactive: [Fields] = [
+        ["id": "paused", "resets_left": 2, "paused": true],
+        ["id": "future", "resets_left": 1, "starts_at": "2027-01-01T00:00:00Z"]]
+    #expect(BankedResets.claude(["eligible": true, "grants": inactive], now: now)?.hasBankedResets(at: now) == false)
+    let reading = try #require(ClaudeQuota.parse(["cedar_ember": ["eligible": true, "grants": grants]], observed: now))
     #expect(reading.bankedResets?.summary(at: now) == "2 banked resets")
     #expect(reading.bankedResets?.active(at: now).first?.heldOnly == true)
     #expect(BankedResets.claude([:]) == nil)
-    #expect(BankedResets.claude(["grants": []])?.summary(at: now) == "0 banked resets")
-    #expect(BankedResets.claude(["grants": [["id": "bad", "resets_left": true]]]) == nil)
+    #expect(BankedResets.claude(["eligible": true, "grants": []])?.summary(at: now) == "0 banked resets")
+    #expect(BankedResets.claude(["eligible": true, "grants": [["id": "bad", "resets_left": true]]]) == nil)
 }
 
 @Test func onlyCurrentAccountCanSupplyClaudeResetHint() throws {
