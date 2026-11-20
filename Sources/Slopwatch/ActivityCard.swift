@@ -17,7 +17,7 @@ struct ActivityCard: View {
             VStack(spacing: 6) {
                 ActivityChart(codex: bins(.codex), claude: bins(.claude)).frame(height: 45)
                 HStack {
-                    Text(model.interval == .day ? "24 hours ago" : "\(model.interval.rawValue) days ago")
+                    Text("\(model.interval.durationLabel) ago")
                     Spacer()
                     Text("Now")
                 }.font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.68))

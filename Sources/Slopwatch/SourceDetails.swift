@@ -121,7 +121,7 @@ private struct ActivityDetails: View {
                 ForEach(Interval.allCases) { range in
                     let activity = report.periods[range] ?? Activity()
                     GridRow {
-                        Text(range == .day ? "24 hours" : "\(range.rawValue) days")
+                        Text(range.durationLabel)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Text(Display.tokens(activity.tokens))
                         Text(Display.estimate(activity)).fontWeight(.medium)
