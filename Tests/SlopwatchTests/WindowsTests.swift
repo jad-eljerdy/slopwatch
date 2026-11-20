@@ -56,7 +56,9 @@ import Testing
     let periods = Activity.rollup(events.values, now: now, prices: .standard)
     let halfDay = try #require(periods[.halfDay])
     #expect(halfDay.tokens == 3)
-    #expect([halfDay.bins[0], halfDay.bins[12], halfDay.bins[23]] == [1, 1, 1])
+    #expect(halfDay.bins[0] == 1)
+    #expect(halfDay.bins[12] == 1)
+    #expect(halfDay.bins[23] == 1)
     #expect(periods[.day]?.tokens == 4)
     #expect(Interval.allCases.map(\.label) == ["12h", "24h", "7d", "30d"])
 }
