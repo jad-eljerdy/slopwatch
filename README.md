@@ -13,7 +13,7 @@ So I put the numbers next to the clock. Click the stopwatch. Read the numbers. C
 ## What you get
 
 - **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. Slopwatch finds your signed-in CLIs automatically.
-- **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption. If Claude Code omits the balance, open Claude source details and expand **Read balance from usage page**. Open [Claude usage settings](https://claude.ai/settings/usage) in your browser. Copy the English **Limit resets** heading and its available count, then select **Paste** in Slopwatch. You can also enable the automatic reader and grant macOS Accessibility access. While the usage tab is in front, Slopwatch reads its displayed total about every six seconds. The browser account can differ from your CLI account. Slopwatch labels the source and time, saves only the count, source, and timestamp on your Mac, and hides the reading after 15 minutes.
+- **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption.
 - **Token counts.** See the last 24 hours, 7 days, or 30 days. View both providers together or select one.
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
@@ -24,6 +24,14 @@ The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Sl
 Open the menu bar panel and select **… → Settings…**. In **General**, choose how often Slopwatch checks subscription limits. The default is 5 minutes. You can select 1, 3, 5, 10, 30, or 60 minutes. Select **Refresh usage** to check immediately.
 
 Limit bars show the percentage left by default. Switch to **Used** to see the percentage used. You can also hide reset times and hide subscriptions that are not connected. Both providers still contribute to activity totals. **About** shows the installed version and build number.
+
+### When Claude Code omits the reset balance
+
+Open Claude source details and expand **Read balance from usage page**. Open [Claude usage settings](https://claude.ai/settings/usage) in your browser. Copy the English **Limit resets** heading and its available count, then select **Paste** in Slopwatch.
+
+For automatic reading, turn on **Read the open usage page automatically** and grant Slopwatch macOS Accessibility access. Keep the usage tab in front in Safari or Chrome. Slopwatch checks the displayed total about every six seconds. Login and redemption stay on Claude’s website.
+
+The browser account can differ from the CLI account. Slopwatch labels the page reading with its source and time. It saves only the count, source, and timestamp on your Mac. The reading expires after 15 minutes. Select **Clear reading** to remove it sooner.
 
 ## Updates
 
