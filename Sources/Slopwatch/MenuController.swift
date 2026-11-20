@@ -15,6 +15,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private weak var observedWindow: NSWindow?
     private let updateChecks = DailyUpdateChecks()
     private var polling: Task<Void, Never>?
+    private var glanceView: MenuBarGlanceView?
     private var glanceExpiry: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -40,6 +41,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                 NSAlert(error: error).runModal()
             }
         }
+        model.notifications.refresh(requestPermission: true)
         model.claudePage.start()
         model.refresh()
         startPolling()
@@ -56,6 +58,8 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private func updateMenuBar() {
         guard let item, let button = item.button else { return }
         glanceExpiry?.cancel()
+        glanceView?.removeFromSuperview()
+        glanceView = nil
         let providers = model.settings.menuBarDisplay.providers
         if providers.isEmpty {
             item.length = NSStatusItem.squareLength
@@ -67,10 +71,19 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
 
         let now = Date()
-        let readings = providers.map { MenuBarReading(provider: $0, report: model.snapshot.reports[$0], now: now) }
-        item.length = NSStatusItem.variableLength
+        let readings = providers.map { provider in
+            MenuBarReading(provider: provider, report: model.snapshot.reports[provider],
+                           window: provider == .claude ? model.settings.claudeWindow : model.settings.codexWindow, now: now)
+        }
         button.image = nil
-        button.attributedTitle = glanceTitle(readings)
+        button.title = ""
+        let view = MenuBarGlanceView(readings: readings)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        item.length = ceil(view.fittingSize.width) + 10
+        button.addSubview(view)
+        NSLayoutConstraint.activate([view.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+                                     view.centerYAnchor.constraint(equalTo: button.centerYAnchor)])
+        glanceView = view
         let descriptions = readings.map(\.description)
         button.toolTip = descriptions.joined(separator: "\n")
         button.setAccessibilityValue(descriptions.joined(separator: ". "))

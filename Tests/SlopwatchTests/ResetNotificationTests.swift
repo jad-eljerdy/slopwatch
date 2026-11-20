@@ -92,3 +92,23 @@ private func resetReading(_ provider: Provider, _ dates: [Date?]?, connection: C
     }
     #expect(center.submissions == 1)
 }
+
+@MainActor @Test func launchRequestsPermissionWithoutAResetInventory() async throws {
+    let suite = "SlopwatchTests." + UUID().uuidString
+    let defaults = try #require(UserDefaults(suiteName: suite))
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let preferences = SettingsPreferences(defaults: defaults)
+    let center = TestReminderCenter()
+    let notifications = ResetNotifications(preferences: preferences, defaults: defaults, center: center)
+    preferences.resetRemindersEnabled = false
+    await notifications.refresh(requestPermission: true).value
+    #expect(center.prompts == 0)
+    preferences.resetRemindersEnabled = true
+    await notifications.refresh(requestPermission: true).value
+    await notifications.refresh(requestPermission: true).value
+    #expect(center.prompts == 1)
+    center.status = .denied
+    await notifications.refresh(requestPermission: true).value
+    #expect(center.prompts == 1)
+    #expect(center.submissions == 0)
+}
