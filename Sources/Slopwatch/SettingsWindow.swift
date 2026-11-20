@@ -50,7 +50,11 @@ private struct GeneralSettings: View {
                 Picker("Show in menu bar", selection: $settings.menuBarDisplay) {
                     ForEach(MenuBarDisplay.allCases, id: \.self) { mode in Text(mode.rawValue).tag(mode) }
                 }
-                .help("Shows the lowest percentage left across each provider’s current limits.")
+                ForEach(settings.menuBarDisplay.providers) { provider in
+                    Picker(provider.rawValue + " limit", selection: provider == .claude ? $settings.claudeWindow : $settings.codexWindow) {
+                        ForEach(MenuBarWindow.allCases, id: \.self) { window in Text(window.rawValue).tag(window) }
+                    }
+                }
             }
             Section("Menu bar panel") {
                 Picker("Limit bars show", selection: $settings.display) {

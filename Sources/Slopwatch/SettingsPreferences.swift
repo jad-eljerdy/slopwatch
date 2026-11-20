@@ -31,6 +31,12 @@ final class SettingsPreferences {
     var checkInterval: LimitCheckInterval {
         didSet { defaults.set(checkInterval.rawValue, forKey: "limitCheckMinutes") }
     }
+    var claudeWindow: MenuBarWindow {
+        didSet { defaults.set(claudeWindow.rawValue, forKey: "menuBarClaudeWindow") }
+    }
+    var codexWindow: MenuBarWindow {
+        didSet { defaults.set(codexWindow.rawValue, forKey: "menuBarCodexWindow") }
+    }
     var menuBarDisplay: MenuBarDisplay {
         didSet { defaults.set(menuBarDisplay.rawValue, forKey: "menuBarDisplay") }
     }
@@ -49,6 +55,8 @@ final class SettingsPreferences {
         resetRemindersEnabled = defaults.object(forKey: "resetRemindersEnabled") as? Bool ?? true
         reminderLead = ReminderLead(rawValue: defaults.integer(forKey: "resetReminderHours")) ?? .day
         checkInterval = LimitCheckInterval(rawValue: defaults.integer(forKey: "limitCheckMinutes")) ?? .five
+        claudeWindow = defaults.string(forKey: "menuBarClaudeWindow").flatMap(MenuBarWindow.init(rawValue:)) ?? .fiveHour
+        codexWindow = defaults.string(forKey: "menuBarCodexWindow").flatMap(MenuBarWindow.init(rawValue:)) ?? .lowest
         menuBarDisplay = defaults.string(forKey: "menuBarDisplay").flatMap(MenuBarDisplay.init(rawValue:)) ?? .both
         display = LimitDisplay(rawValue: defaults.string(forKey: "limitDisplay") ?? "") ?? .remaining
         hideUnused = defaults.bool(forKey: "hideUnusedSubscriptions")

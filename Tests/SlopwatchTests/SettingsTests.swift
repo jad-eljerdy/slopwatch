@@ -12,6 +12,8 @@ import Testing
     #expect(settings.checkInterval == .five)
     #expect(settings.display == .remaining)
     #expect(settings.menuBarDisplay == .both)
+    #expect(settings.claudeWindow == .fiveHour)
+    #expect(settings.codexWindow == .lowest)
     #expect(!settings.hideUnused)
     #expect(settings.showResets)
     #expect(settings.shows(.missing))
@@ -20,6 +22,8 @@ import Testing
     settings.checkInterval = .thirty
     settings.display = .used
     settings.menuBarDisplay = .claude
+    settings.claudeWindow = .stacked
+    settings.codexWindow = .weekly
     settings.hideUnused = true
     settings.showResets = false
     let reopened = SettingsPreferences(defaults: defaults)
@@ -28,6 +32,8 @@ import Testing
     #expect(reopened.checkInterval == .thirty)
     #expect(reopened.display == .used)
     #expect(reopened.menuBarDisplay == .claude)
+    #expect(reopened.claudeWindow == .stacked)
+    #expect(reopened.codexWindow == .weekly)
     #expect(!reopened.showResets)
     #expect(reopened.shows(.subscription) && reopened.shows(.checking))
     for connection in [Connection.missing, .api, .signedOut, .unavailable] {
