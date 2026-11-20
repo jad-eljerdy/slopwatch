@@ -15,23 +15,59 @@ struct ResetDetails: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Caption(text: "Banked resets")
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Banked resets").font(.headline)
+                if let inventory, !inventory.presenceOnly, inventory.summary(at: now) != nil {
+                    let count = inventory.active(at: now).reduce(inventory.unlisted) { $0 + $1.quantity }
+                    Text(count, format: .number).font(.caption.bold()).monospacedDigit()
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(.primary.opacity(0.08), in: Capsule())
+                }
+                Spacer()
+                Link(destination: usagePage) { Label("Review", systemImage: "arrow.up.right") }
+                    .font(.callout.weight(.medium))
+                    .accessibilityLabel("Review resets on " + provider.rawValue)
+                    .help("Open the provider’s usage page to review a reset.")
+            }
             if let inventory, let summary = inventory.summary(at: now) {
-                Text(summary).fontWeight(.medium)
-                ForEach(inventory.active(at: now)) { grant in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(grant.quantity > 1 ? "\(grant.title) × \(grant.quantity)" : grant.title)
-                        if let expiry = grant.expires {
-                            Text("Expires " + expiry.formatted(date: .abbreviated, time: .shortened))
-                                .font(.caption).foregroundStyle(.secondary)
+                let grants = inventory.active(at: now)
+                if grants.isEmpty && inventory.unlisted == 0 {
+                    Text(inventory.presenceOnly ? summary : "No banked resets available.").foregroundStyle(.secondary)
+                }
+                if !grants.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack {
+                            Text("Type")
+                            Spacer()
+                            Text("Expires")
+                        }.font(.caption.weight(.medium)).foregroundStyle(.secondary).padding(.vertical, 5)
+                        Divider()
+                        ForEach(grants) { grant in
+                            if grant.id != grants.first?.id { Divider() }
+                            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                                Text(grant.quantity > 1 ? "\(grant.title) × \(grant.quantity)" : grant.title)
+                                    .fontWeight(.medium)
+                                Spacer(minLength: 6)
+                                if let expiry = grant.expires {
+                                    Text(expiry.formatted(.dateTime.month(.abbreviated).day()) + " · " +
+                                         expiry.formatted(date: .omitted, time: .shortened))
+                                        .monospacedDigit().foregroundStyle(.secondary)
+                                        .accessibilityLabel("Expires " + expiry.formatted())
+                                        .help("Expires " + expiry.formatted())
+                                }
+                            }.padding(.vertical, 7).accessibilityElement(children: .combine)
+                            if grant.heldOnly { Text("Held · unavailable now").font(.caption).padding(.bottom, 6) }
                         }
-                        if grant.heldOnly { Text("Held · unavailable now").font(.caption).foregroundStyle(.secondary) }
                     }
+                    .padding(.horizontal, 11).padding(.vertical, 2)
+                    .background(.background, in: RoundedRectangle(cornerRadius: 10))
+                    .overlay { RoundedRectangle(cornerRadius: 10).strokeBorder(.primary.opacity(0.10)) }
+                    .help("Dates show when each reset expires")
                 }
                 if inventory.unlisted > 0 {
-                    Text("Individual details are unavailable for \(inventory.unlisted) of these resets.")
-                        .font(.caption).foregroundStyle(.secondary)
+                    Text(inventory.unlisted == 1 ? "Details unavailable for 1 reset." : "Details unavailable for \(inventory.unlisted) resets.")
+                        .foregroundStyle(.secondary)
                 }
             } else if let balance = pageReader?.balance, balance.isFresh(at: now) {
                 Text(balance.label).fontWeight(.medium)
@@ -40,8 +76,6 @@ struct ResetDetails: View {
             } else {
                 Text("The CLI did not report a reset balance.").foregroundStyle(.secondary)
             }
-            Link("Review resets on \(provider.rawValue) ↗", destination: usagePage)
-                .help("Open the provider’s usage page to review and confirm a reset.")
             if let pageReader {
                 DisclosureGroup("Read balance from usage page", isExpanded: $showPageOptions) {
                     VStack(alignment: .leading, spacing: 8) {
@@ -59,6 +93,6 @@ struct ResetDetails: View {
                     }.frame(maxWidth: .infinity, alignment: .leading).padding(.top, 5)
                 }
             }
-        }
+        }.font(.system(size: 13))
     }
 }
