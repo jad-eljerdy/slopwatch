@@ -54,14 +54,7 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         anchorX = display == nil ? pointer.x : center.x
         anchorScreen = screen
         let available = usableArea(on: screen)
-        let content = Dashboard(model: model, openSettings: openSettings)
-        let root = ViewThatFits(in: .vertical) {
-            content.fixedSize(horizontal: false, vertical: true)
-            ScrollView { content }
-        }
-        .frame(width: 380)
-        .frame(maxHeight: max(1, available.height - 40))
-        .fixedSize(horizontal: false, vertical: true)
+        let root = PanelContent(model: model, openSettings: openSettings, maxHeight: max(1, available.height - 40))
         let host = NSHostingController(rootView: root)
         popover.contentViewController = host
         popover.contentSize = host.sizeThatFits(in: CGSize(width: 380, height: max(1, available.height - 40)))
@@ -132,5 +125,22 @@ extension MenuController {
         updateChecks.stop()
         polling?.cancel()
         NSWorkspace.shared.notificationCenter.removeObserver(self)
+    }
+}
+
+private struct PanelContent: View {
+    let model: DashboardModel
+    let openSettings: () -> Void
+    let maxHeight: CGFloat
+    @State private var contentHeight: CGFloat?
+
+    var body: some View {
+        ScrollView {
+            Dashboard(model: model, openSettings: openSettings)
+                .fixedSize(horizontal: false, vertical: true)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .frame(width: 380, height: min(contentHeight.map { ceil($0) } ?? maxHeight, maxHeight))
     }
 }
