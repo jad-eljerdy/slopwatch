@@ -58,8 +58,25 @@ import Testing
     let now = Date()
     f.readQuota(["primary": ["used_percent": 30]], at: now)
     f.readQuota(["primary": ["used_percent": 10]], at: now.addingTimeInterval(-1))
-    f.readQuota(["primary": ["used_percent": 200]], at: now.addingTimeInterval(2))
+    f.readQuota(["primary": ["used_percent": -1]], at: now.addingTimeInterval(2))
     #expect(f.quota.windows.first?.used == 30)
+}
+
+@Test func codexQuotaAboveOneHundred() throws {
+    var file = FileIndex()
+    let now = Date(timeIntervalSince1970: 10_000)
+    let observed = now.addingTimeInterval(1)
+    let reset = now.addingTimeInterval(3600)
+    file.readQuota(["primary": ["used_percent": 30, "window_minutes": 300]], at: now)
+    file.readQuota(["primary": ["used_percent": 104, "window_minutes": 300, "resets_at": reset.timeIntervalSince1970],
+                    "secondary": ["used_percent": 60, "window_minutes": 10080]], at: observed)
+
+    let primary = try #require(file.quota.windows.first)
+    #expect(file.quota.observed == observed)
+    #expect(file.quota.windows.map(\.title) == ["5-hour", "Weekly"])
+    #expect(primary.used == 104)
+    #expect(primary.reset == reset)
+    #expect(LimitDisplay.remaining.percent(used: primary.used) == 0)
 }
 
 @Test func claudeRevisions() throws {

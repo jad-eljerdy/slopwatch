@@ -50,7 +50,7 @@ extension FileIndex {
               (data["limit_id"] as? String ?? "codex") == "codex" else { return }
         let windows = ["primary", "secondary"].compactMap { name -> Limit? in
             let window = data.object(name)
-            guard let used = window.number("used_percent"), (0...100).contains(used) else { return nil }
+            guard let used = window.number("used_percent"), used >= 0 else { return nil }
             let minutes = window.count("window_minutes")
             return Limit(title: windowTitle(minutes: minutes), used: used,
                          reset: window.number("resets_at").map(Date.init(timeIntervalSince1970:)), observed: time)
