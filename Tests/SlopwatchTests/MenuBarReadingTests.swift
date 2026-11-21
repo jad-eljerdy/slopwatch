@@ -47,3 +47,17 @@ import Testing
     let absent = MenuBarReading(provider: .claude, report: report, window: .fiveHour, now: end)
     #expect(absent.lines.first?.percent == "—")
 }
+
+@Test func onlyVisibleChangesInvalidateTheGlanceImage() {
+    let now = Date()
+    func reading(used: Double, resetIn: TimeInterval) -> MenuBarReading {
+        let limit = Limit(title: "5-hour", used: used, reset: now.addingTimeInterval(resetIn), observed: now)
+        let report = ProviderReport(quota: Quota(windows: [limit]), connection: .subscription)
+        return MenuBarReading(provider: .claude, report: report, window: .stacked, now: now)
+    }
+    let initial = reading(used: 21.1, resetIn: 300)
+    let renewed = reading(used: 21.2, resetIn: 600)
+    #expect(initial.validUntil != renewed.validUntil)
+    #expect(MenuBarGlyph(initial) == MenuBarGlyph(renewed))
+    #expect(MenuBarGlyph(initial) != MenuBarGlyph(reading(used: 22, resetIn: 300)))
+}

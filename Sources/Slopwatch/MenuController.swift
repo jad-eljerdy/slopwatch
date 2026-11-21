@@ -15,7 +15,8 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private weak var observedWindow: NSWindow?
     private let updateChecks = DailyUpdateChecks()
     private var polling: Task<Void, Never>?
-    private var glanceView: MenuBarGlanceView?
+    private var shownGlyphs: [MenuBarGlyph]?
+    private var nextExpiry: Date?
     private var glanceExpiry: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -57,13 +58,12 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     private func updateMenuBar() {
         guard let item, let button = item.button else { return }
-        glanceExpiry?.cancel()
-        glanceView?.removeFromSuperview()
-        glanceView = nil
         let providers = model.settings.menuBarDisplay.providers
         if providers.isEmpty {
+            scheduleGlanceExpiry(nil)
+            guard shownGlyphs != [] else { return }
+            shownGlyphs = []
             item.length = NSStatusItem.squareLength
-            button.title = ""
             button.image = menuBarImage()
             button.toolTip = "Slopwatch · Subscription usage"
             button.setAccessibilityValue(nil)
@@ -75,24 +75,30 @@ final class MenuController: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             MenuBarReading(provider: provider, report: model.snapshot.reports[provider],
                            window: provider == .claude ? model.settings.claudeWindow : model.settings.codexWindow, now: now)
         }
-        button.image = nil
-        button.title = ""
-        let view = MenuBarGlanceView(readings: readings)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        item.length = ceil(view.fittingSize.width) + 10
-        button.addSubview(view)
-        NSLayoutConstraint.activate([view.centerXAnchor.constraint(equalTo: button.centerXAnchor),
-                                     view.centerYAnchor.constraint(equalTo: button.centerYAnchor)])
-        glanceView = view
+        scheduleGlanceExpiry(readings.compactMap(\.validUntil).min())
+        let glyphs = readings.map(MenuBarGlyph.init)
+        if shownGlyphs != glyphs {
+            shownGlyphs = glyphs
+            item.length = NSStatusItem.variableLength
+            button.image = glanceImage(glyphs)
+        }
         let descriptions = readings.map(\.description)
-        button.toolTip = descriptions.joined(separator: "\n")
-        button.setAccessibilityValue(descriptions.joined(separator: ". "))
+        let tooltip = descriptions.joined(separator: "\n")
+        if button.toolTip != tooltip {
+            button.toolTip = tooltip
+            button.setAccessibilityValue(descriptions.joined(separator: ". "))
+        }
+    }
 
-        if let expiry = readings.compactMap(\.validUntil).min() {
-            glanceExpiry = Task { [weak self] in
-                do { try await Task.sleep(for: .seconds(max(0, expiry.timeIntervalSinceNow))) } catch { return }
-                self?.updateMenuBar()
-            }
+    private func scheduleGlanceExpiry(_ expiry: Date?) {
+        guard expiry != nextExpiry else { return }
+        nextExpiry = expiry
+        glanceExpiry?.cancel()
+        guard let expiry else { return }
+        glanceExpiry = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(max(0, expiry.timeIntervalSinceNow))) } catch { return }
+            self?.nextExpiry = nil
+            self?.updateMenuBar()
         }
     }
 
@@ -165,7 +171,7 @@ extension MenuController {
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(60), tolerance: .seconds(5)) } catch { return }
                 self?.updateChecks.checkIfDue()
-                self?.model.refreshIfNeeded()
+                if self?.popover.isShown == true { self?.model.refreshIfNeeded() }
             }
         }
     }

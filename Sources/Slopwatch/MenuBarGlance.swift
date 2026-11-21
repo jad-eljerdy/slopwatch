@@ -67,45 +67,56 @@ struct MenuBarReading {
     }
 }
 
-// Keep the native status button responsible for clicks, keyboard access, and tooltips.
+// Only visible content determines whether the status button needs a new image.
+struct MenuBarGlyph: Equatable {
+    let provider: Provider
+    let values: [String]
+
+    init(_ reading: MenuBarReading) {
+        provider = reading.provider
+        values = reading.lines.map(\.percent)
+    }
+}
+
 @MainActor
-final class MenuBarGlanceView: NSStackView {
-    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+func glanceImage(_ glyphs: [MenuBarGlyph]) -> NSImage {
+    let height: CGFloat = 22
+    var x: CGFloat = 0
+    var icons: [(NSImage, CGRect)] = []
+    var labels: [(NSAttributedString, CGPoint)] = []
 
-    convenience init(readings: [MenuBarReading]) {
-        self.init(frame: .zero)
-        orientation = .horizontal
-        alignment = .centerY
-        spacing = 8
-        setAccessibilityElement(false)
-
-        for reading in readings {
-            let values = NSStackView()
-            values.orientation = .vertical
-            values.alignment = .trailing
-            values.spacing = 0
-            let stacked = reading.lines.count > 1
-            for line in reading.lines {
-                let label = NSTextField(labelWithString: line.percent)
-                label.font = .monospacedDigitSystemFont(ofSize: stacked ? 10 : 12, weight: .medium)
-                label.setAccessibilityElement(false)
-                values.addArrangedSubview(label)
-            }
-            let symbol: NSView
-            if let image = ProviderIcon.icons[reading.provider] {
-                let icon = NSImageView(image: image)
-                icon.imageScaling = .scaleProportionallyUpOrDown
-                NSLayoutConstraint.activate([icon.widthAnchor.constraint(equalToConstant: 20),
-                                             icon.heightAnchor.constraint(equalToConstant: 20)])
-                symbol = icon
-            } else {
-                symbol = NSTextField(labelWithString: reading.provider.rawValue)
-            }
-            let group = NSStackView(views: [symbol, values])
-            group.orientation = .horizontal
-            group.alignment = .centerY
-            group.spacing = 2
-            addArrangedSubview(group)
+    for glyph in glyphs {
+        if x > 0 { x += 8 }
+        if let icon = ProviderIcon.icons[glyph.provider] {
+            icons.append((icon, CGRect(x: x, y: 1, width: 20, height: 20)))
+            x += 22
+        } else {
+            let name = NSAttributedString(string: glyph.provider.rawValue, attributes: [
+                .font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.labelColor
+            ])
+            labels.append((name, CGPoint(x: x, y: floor((height - name.size().height) / 2))))
+            x += ceil(name.size().width) + 2
         }
+        let stacked = glyph.values.count > 1
+        let font = NSFont.monospacedDigitSystemFont(ofSize: stacked ? 10 : 12, weight: .medium)
+        let rows = glyph.values.map {
+            NSAttributedString(string: $0, attributes: [.font: font, .foregroundColor: NSColor.labelColor])
+        }
+        let width = ceil(rows.map { $0.size().width }.max() ?? 0)
+        let rowHeight = height / CGFloat(rows.count)
+        for (index, row) in rows.enumerated() {
+            let size = row.size()
+            let y = height - (CGFloat(index) + 0.5) * rowHeight - size.height / 2
+            labels.append((row, CGPoint(x: x + width - size.width, y: floor(y))))
+        }
+        x += width
+    }
+
+    // AppKit snapshots status items for the menu bar. Supply one native image
+    // so taking that snapshot never lays out or invalidates a child view.
+    return NSImage(size: NSSize(width: x, height: height), flipped: false) { [icons, labels] _ in
+        for (icon, rect) in icons { icon.draw(in: rect) }
+        for (label, point) in labels { label.draw(at: point) }
+        return true
     }
 }
