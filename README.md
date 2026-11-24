@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.1.13 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.13/Slopwatch-1.1.13.dmg)**
+**[Download Slopwatch v1.1.14 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.14/Slopwatch-1.1.14.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
