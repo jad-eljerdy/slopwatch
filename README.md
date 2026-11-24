@@ -83,7 +83,7 @@ The local index lives in `~/Library/Caches/local.slopwatch.app/`. It stores coun
 
 ## Change something
 
-The [price table](Sources/Slopwatch/Resources/rates.tsv) is plain text. Edit a row and rebuild. The bundled rates are dated November 21, 2026. Estimates exclude tool fees, service-tier adjustments, regional charges, and subscription fees. Codex cache writes use the default retention rate when the log omits the duration. Some Claude logs also include API-key sessions. See the published rates from [OpenAI](https://developers.openai.com/api/docs/pricing) and [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing).
+The [price table](Sources/Slopwatch/Resources/rates.tsv) is plain text. Edit a row and rebuild. The bundled rates are dated November 24, 2026. Estimates exclude tool fees, service-tier adjustments, regional charges, and subscription fees. Codex cache writes use the default retention rate when the log omits the duration. Some Claude logs also include API-key sessions. See the published rates from [OpenAI](https://developers.openai.com/api/docs/pricing) and [Anthropic](https://platform.claude.com/docs/en/about-claude/pricing).
 
 | To change | Start here |
 | --- | --- |
