@@ -1,4 +1,4 @@
-# Standard USD per million tokens. Reference date: 2026-11-24.
+# Standard USD per million tokens. Reference date: 2026-11-27.
 # model	input	read	shortWrite	longWrite	output	longContextRule
 gpt-6.2-astra	8	0.4	10	20	40	openai
 gpt-6.2-sol	2	0.1	2.5	5	10	openai
