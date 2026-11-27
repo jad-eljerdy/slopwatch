@@ -2,7 +2,12 @@ import Darwin
 import Foundation
 
 enum CodexResetRequest {
-    static func fetch(paths: LocalPaths) -> BankedResets? {
+    struct Reading {
+        let plan: String?
+        let resets: BankedResets?
+    }
+
+    static func fetch(paths: LocalPaths) -> Reading? {
         guard let executable = paths.executable("codex") else { return nil }
         let process = Process()
         let input = Pipe()
@@ -37,7 +42,10 @@ enum CodexResetRequest {
                     guard row["result"] is Fields else { return nil }
                     try send(#"{"method":"initialized"}"#)
                     try send(#"{"id":2,"method":"account/rateLimits/read"}"#)
-                case 2: return BankedResets.codex(row.object("result").object("rateLimitResetCredits"))
+                case 2:
+                    guard let result = row["result"] as? Fields else { return nil }
+                    return Reading(plan: result.object("rateLimits")["planType"] as? String,
+                                   resets: BankedResets.codex(result.object("rateLimitResetCredits")))
                 default: continue
                 }
             }

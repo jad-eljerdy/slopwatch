@@ -42,3 +42,24 @@ private let reply = #"{"type":"control_response","response":{"subtype":"success"
     let quota = try #require(ClaudeUsageRequest.fetch(paths: LocalPaths(home: home, environment: [:])))
     #expect(quota.windows.map(\.title) == ["5-hour", "Weekly"])
 }
+
+@Test func fableMeterUsesTheReportedModelLimit() throws {
+    let now = Date(timeIntervalSince1970: 1000)
+    let fable: Fields = ["kind": "weekly_scoped", "percent": 0, "resets_at": 2000,
+                         "scope": ["model": ["display_name": "Fable"]], "is_active": false]
+    let legacy: Fields = ["display_name": "Fable", "utilization": 42.5, "resets_at": 2000]
+    let usage: Fields = ["seven_day": ["utilization": 77], "limits": [fable], "model_scoped": [legacy]]
+    let reading = try #require(ClaudeQuota.parse(usage, observed: now))
+    #expect(reading.windows.map(\.title) == ["Weekly", "Weekly · Fable"])
+    #expect(reading.windows.map(\.used) == [77, 0])
+    #expect(reading.windows.last?.isCurrent(at: Date(timeIntervalSince1970: 2000)) == false)
+    #expect(ClaudeQuota.parse(["model_scoped": [legacy]], observed: now)?.windows.first?.used == 42.5)
+    let otherLimits: Fields = ["limits": [["kind": "weekly_all", "percent": 55]],
+                               "model_scoped": [["display_name": "Opus", "utilization": 30]]]
+    #expect(ClaudeQuota.parse(otherLimits, observed: now) == nil)
+    for invalid: Any in [NSNull(), true, -1, 101] {
+        var invalidRow = fable
+        invalidRow["percent"] = invalid
+        #expect(ClaudeQuota.parse(["limits": [invalidRow]], observed: now) == nil)
+    }
+}

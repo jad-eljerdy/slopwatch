@@ -14,7 +14,15 @@ struct ProviderCard: View {
             HStack(spacing: 8) {
                 ProviderIcon(provider: provider, size: 28)
                 Text(provider.rawValue).font(.system(size: 14, weight: .semibold))
-                Spacer()
+                if let plan = report.planLabel {
+                    Text(plan)
+                        .font(.system(size: 10, weight: .semibold))
+                        .lineLimit(1).truncationMode(.tail)
+                        .padding(.horizontal, 7).padding(.vertical, 3)
+                        .background(provider.tint.opacity(0.18), in: Capsule())
+                        .help(plan + " plan").accessibilityLabel(plan + " plan")
+                }
+                Spacer(minLength: 2)
                 Text(report.connection.rawValue).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
                 Button(action: details) { Image(systemName: "info.circle") }
                     .buttonStyle(.plain).foregroundStyle(.secondary).accessibilityLabel(provider.rawValue + " source details")

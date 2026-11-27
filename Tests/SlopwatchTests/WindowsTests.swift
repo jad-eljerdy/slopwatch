@@ -62,3 +62,33 @@ import Testing
     #expect(periods[.day]?.tokens == 4)
     #expect(Interval.allCases.map(\.label) == ["12h", "24h", "7d", "30d"])
 }
+
+@Test func modelCountsFollowTheRangeAndProviderFilter() throws {
+    let now = Date()
+    func event(_ id: String, _ hoursAgo: Double, _ model: String, _ tokens: Int) -> UsageEvent {
+        UsageEvent(id: id, time: now.addingTimeInterval(-hoursAgo * 3600), model: model, tokens: Tokens(read: tokens))
+    }
+    func report(_ events: [UsageEvent]) -> ProviderReport {
+        let unique = Dictionary(uniqueKeysWithValues: events.map { ($0.id, $0) })
+        return ProviderReport(periods: Activity.rollup(unique.values, now: now, prices: .standard))
+    }
+    let snapshot = Snapshot(reports: [
+        .claude: report([event("a", 0, "fable", 5), event("b", 12, "opus", 10), event("c", 24, "fable", 20)]),
+        .codex: report([event("d", 0, "gpt", 7), event("e", 168, "gpt", 25)])
+    ])
+    for (range, fable, opus, gpt) in [(Interval.halfDay, 5, 0, 7), (.day, 5, 10, 7),
+                                        (.week, 25, 10, 7), (.month, 25, 10, 32)] {
+        let combined = snapshot.activity(range, provider: nil)
+        #expect(combined.modelBins["fable"]?.reduce(0, +) == fable)
+        #expect((combined.modelBins["opus"]?.reduce(0, +) ?? 0) == opus)
+        #expect(combined.modelBins["gpt"]?.reduce(0, +) == gpt)
+        #expect(combined.bins.reduce(0, +) == fable + opus + gpt)
+        #expect(snapshot.activity(range, provider: .claude).modelBins["gpt"] == nil)
+        #expect(snapshot.activity(range, provider: .codex).modelBins["fable"] == nil)
+    }
+    let day = snapshot.activity(.day, provider: nil)
+    #expect(day.bins[12] == 10)
+    #expect(day.bins[23] == 12)
+    #expect(day.modelBins["opus"]?[23] == 0)
+    #expect((day + day).modelBins["fable"]?[23] == 10)
+}

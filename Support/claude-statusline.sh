@@ -7,7 +7,7 @@ trap '/bin/rm -f "$tmp"' EXIT
 /usr/bin/jq -ce '
   {observed: (now | floor), rate_limits: (
       (.rate_limits // {}) | with_entries(
-        select(.key == "five_hour" or .key == "seven_day")
+        select(.key == "five_hour" or .key == "seven_day" or .key == "seven_day_fable")
         | select(.value.used_percentage | type == "number")
         | .value |= {used_percentage, resets_at}
       )
@@ -16,4 +16,4 @@ trap '/bin/rm -f "$tmp"' EXIT
 ' > "$tmp" || exit 0
 /bin/mv -f "$tmp" "$root/slopwatch-limits.json"
 /usr/bin/jq -r '[.rate_limits | to_entries[] |
-  (if .key == "five_hour" then "5h" else "7d" end) + " " + (.value.used_percentage | round | tostring) + "%"] | join(" · ")' "$root/slopwatch-limits.json"
+  (if .key == "five_hour" then "5h" elif .key == "seven_day_fable" then "Fable 7d" else "7d" end) + " " + (.value.used_percentage | round | tostring) + "%"] | join(" · ")' "$root/slopwatch-limits.json"

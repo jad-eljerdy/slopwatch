@@ -23,8 +23,8 @@ struct SourceDetails: View {
                 ProviderIcon(provider: provider, size: 36)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(provider.rawValue).font(.system(size: 25, weight: .bold, design: .rounded))
-                    if let plan = report.quota.plan {
-                        Text(displayPlan(plan)).font(.callout).foregroundStyle(.secondary)
+                    if let plan = report.planLabel {
+                        Text(plan).font(.callout).foregroundStyle(.secondary)
                     }
                 }
                 Spacer()
@@ -55,12 +55,6 @@ struct SourceDetails: View {
         .background(Color(nsColor: .windowBackgroundColor))
     }
 
-    private func displayPlan(_ plan: String) -> String {
-        switch plan.lowercased() {
-        case "prolite": "Pro Lite"
-        default: plan.replacingOccurrences(of: "_", with: " ").capitalized
-        }
-    }
 }
 
 private struct LimitDetails: View {

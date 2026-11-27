@@ -15,16 +15,37 @@ extension ClaudeQuota {
     static func parse(_ fields: Fields, observed: Date) -> Quota? {
         let names = [("five_hour", "5-hour"), ("seven_day", "Weekly"),
                      ("seven_day_opus", "Weekly · Opus"), ("seven_day_sonnet", "Weekly · Sonnet")]
-        let windows = names.compactMap { key, title -> Limit? in
+        var windows = names.compactMap { key, title -> Limit? in
             let w = fields.object(key)
             guard let used = w.number("utilization") ?? w.number("used_percentage"),
                   (0...100).contains(used) else { return nil }
             let reset = timestamp(w["resets_at"]) ?? w.number("resets_at").map(Date.init(timeIntervalSince1970:))
             return Limit(title: title, used: used, reset: reset, observed: observed)
         }
+        if let fable = fableLimit(fields, observed: observed) { windows.append(fable) }
         let resets = BankedResets.claude(fields.object("cedar_ember"), now: observed)
         guard !windows.isEmpty || resets != nil else { return nil }
         return Quota(observed: observed, windows: windows, bankedResets: resets)
+    }
+
+    private static func fableLimit(_ fields: Fields, observed: Date) -> Limit? {
+        func limit(_ row: Fields, percent: String) -> Limit? {
+            guard let used = row.number(percent), (0...100).contains(used) else { return nil }
+            let reset = timestamp(row["resets_at"]) ?? row.number("resets_at").map(Date.init(timeIntervalSince1970:))
+            return Limit(title: "Weekly · Fable", used: used, reset: reset, observed: observed)
+        }
+
+        for row in fields["limits"] as? [Fields] ?? [] where row["kind"] as? String == "weekly_scoped" {
+            let model = row.object("scope").object("model")
+            if (model["display_name"] as? String)?.lowercased() == "fable",
+               let reading = limit(row, percent: "percent") { return reading }
+        }
+        for row in fields["model_scoped"] as? [Fields] ?? [] {
+            if (row["display_name"] as? String)?.lowercased() == "fable",
+               let reading = limit(row, percent: "utilization") { return reading }
+        }
+        let window = fields.object("seven_day_fable")
+        return limit(window, percent: "utilization") ?? limit(window, percent: "used_percentage")
     }
 }
 

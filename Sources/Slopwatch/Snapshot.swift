@@ -4,6 +4,16 @@ struct ProviderReport: Sendable {
     var periods: [Interval: Activity] = [:]
     var quota = Quota()
     var connection = Connection.checking
+
+    var planLabel: String? {
+        guard connection == .subscription,
+              let name = quota.plan?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !name.isEmpty, name.lowercased() != "unknown" else { return nil }
+        if name.lowercased() == "prolite" { return "Pro Lite" }
+        return name.replacingOccurrences(of: "_", with: " ").split(separator: " ")
+            .map { $0.first?.isNumber == true ? String($0) : $0.capitalized }
+            .joined(separator: " ")
+    }
 }
 
 struct Snapshot: Sendable {

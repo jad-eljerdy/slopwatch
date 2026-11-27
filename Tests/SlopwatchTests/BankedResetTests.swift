@@ -74,10 +74,11 @@ import Testing
     [ "$msg" = '{"method":"initialized"}' ]
     IFS= read -r msg
     [ "$msg" = '{"id":2,"method":"account/rateLimits/read"}' ]
-    echo '{"id":2,"result":{"rateLimitResetCredits":{"availableCount":2,"credits":null}}}'
+    echo '{"id":2,"result":{"rateLimits":{"planType":"prolite"},"rateLimitResetCredits":{"availableCount":2,"credits":null}}}'
     """
     try script.write(to: cli, atomically: true, encoding: .utf8)
     try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: cli.path)
     let reset = try #require(CodexResetRequest.fetch(paths: LocalPaths(home: home, environment: [:])))
-    #expect(reset.unlisted == 2)
+    #expect(reset.resets?.unlisted == 2)
+    #expect(reset.plan == "prolite")
 }

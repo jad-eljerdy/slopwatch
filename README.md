@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.1.14 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.1.14/Slopwatch-1.1.14.dmg)**
+**[Download Slopwatch v1.2.0 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.2.0/Slopwatch-1.2.0.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -12,9 +12,9 @@ So I put the numbers next to the clock. Click Slopwatch in the menu bar. Read th
 
 ## What you get
 
-- **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. Slopwatch finds your signed-in CLIs automatically.
+- **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. The pill beside each connected provider shows its reported plan. Claude also shows a weekly Fable meter when the account reports a Fable limit.
 - **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption.
-- **Token counts.** See the last 12 hours, 24 hours, 7 days, or 30 days. View both providers together or select one.
+- **Token counts.** See the last 12 hours, 24 hours, 7 days, or 30 days. View both providers together or select one. Hover over an activity bar to see its time range and each model’s token count. The last column shows each model’s total for the selected period. You can also focus the chart and use the left and right arrow keys.
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
 The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Slopwatch account, backend, or telemetry.
@@ -38,6 +38,8 @@ For automatic reading, turn on **Read the open usage page automatically** and gr
 The browser account can differ from the CLI account. Slopwatch labels the page reading with its source and time. It saves only the count, source, and timestamp on your Mac. The reading expires after 15 minutes. Select **Clear reading** to remove it sooner.
 
 ## Updates
+
+See the [Slopwatch changelog](https://slopwatch.jad.sh/changelog) for release notes.
 
 If you use v1.0, quit the app and install the current release once. From v1.1.5 onward, Slopwatch checks GitHub each local calendar day while automatic updates are enabled. If it misses a day, it checks when the app next opens, the Mac wakes, or the internet connection returns. If GitHub is unreachable, it retries with increasing delays of up to one hour. Sparkle verifies the signed update feed and download. It can install the update when you quit the app. Select **Check for Updates…** beside the installed version to check immediately. If an update is available, Sparkle offers to install it. You can turn off automatic updates in the options menu. Update checks do not send your token counts, subscription readings, or a system profile.
 

@@ -2,10 +2,10 @@ import SwiftUI
 
 struct ActivityCard: View {
     let model: DashboardModel
-    private var amount: Activity { model.snapshot.activity(model.interval, provider: model.provider) }
     private var ready: Bool { model.snapshot.updated != nil }
 
     var body: some View {
+        let amount = model.snapshot.activity(model.interval, provider: model.provider)
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
                 metric("Tokens", value: ready ? Display.tokens(amount.tokens) : "—", size: 37)
@@ -14,21 +14,17 @@ struct ActivityCard: View {
                 metric("API value", value: ready ? Display.estimate(amount) : "—", size: 24, alignment: .trailing)
                     .help("Estimated standard API token cost in USD. Subscription charges are separate.")
             }
-            VStack(spacing: 6) {
-                ActivityChart(codex: bins(.codex), claude: bins(.claude)).frame(height: 45)
-                HStack {
-                    Text("\(model.interval.durationLabel) ago")
-                    Spacer()
-                    Text("Now")
-                }.font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.68))
-            }
+            ActivityChart(activity: amount, interval: model.interval, end: model.snapshot.updated,
+                          modelNames: modelNames)
         }
         .padding(16).background(Palette.ink, in: RoundedRectangle(cornerRadius: 15))
     }
 
-    private func bins(_ source: Provider) -> [Int] {
-        guard model.provider == nil || model.provider == source else { return Activity().bins }
-        return model.snapshot.activity(model.interval, provider: source).bins
+    // Keep model colors consistent across the provider and time range controls.
+    private var modelNames: [String] {
+        Set(model.snapshot.reports.values.flatMap { report in
+            report.periods[.month]?.modelBins.keys.map { $0 } ?? []
+        }).sorted()
     }
 
     private func metric(_ label: String, value: String, size: CGFloat, alignment: HorizontalAlignment = .leading) -> some View {

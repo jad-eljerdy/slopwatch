@@ -38,7 +38,7 @@ extension SlopwatchApp {
     static func printSummary(_ snapshot: Snapshot) {
         for provider in Provider.allCases {
             guard let report = snapshot.reports[provider] else { continue }
-            print(provider.rawValue, report.connection.rawValue)
+            print([provider.rawValue, report.connection.rawValue, report.planLabel].compactMap { $0 }.joined(separator: " "))
             for interval in Interval.allCases {
                 let a = report.periods[interval] ?? Activity()
                 print(" ", interval.label, a.tokens, "tokens", Display.estimate(a), "unpriced", a.unpriced)

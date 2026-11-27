@@ -56,7 +56,6 @@ extension UsageEngine {
             } catch { snapshot.issues.append("The local index could not be saved.") }
         }
         if let quotaIssue { snapshot.issues.append(quotaIssue) }
-        snapshot.updated = reference ?? Date()
         return snapshot
     }
 }
@@ -88,7 +87,8 @@ extension UsageEngine {
     private func readLimits(_ sources: [HistoryFile]) {
         quotaIssue = nil
         for provider in Provider.allCases {
-            auth[provider] = CLIStatus.check(provider, paths: paths)
+            let account = CLIStatus.check(provider, paths: paths)
+            auth[provider] = account.connection
             var quota = provider == .claude ? paths.claudeQuota() : Quota()
             for source in sources where source.provider == provider {
                 if let reading = files[source.url.path]?.quota, reading.observed > quota.observed {
@@ -96,7 +96,9 @@ extension UsageEngine {
                 }
             }
             if provider == .codex && auth[provider] == .subscription {
-                quota.bankedResets = CodexResetRequest.fetch(paths: paths)
+                let live = CodexResetRequest.fetch(paths: paths)
+                quota.bankedResets = live?.resets
+                quota.plan = live?.plan ?? quota.plan
             }
             if provider == .claude && auth[provider] == .subscription {
                 quota.bankedResets = nil
@@ -105,6 +107,7 @@ extension UsageEngine {
                 } else {
                     quotaIssue = "Claude Code could not refresh its subscription limits."
                 }
+                quota.plan = account.plan ?? quota.plan
                 if quota.bankedResets == nil { quota.bankedResets = paths.claudeResetHint(now: Date()) }
             }
             quotas[provider] = quota

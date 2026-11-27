@@ -12,19 +12,31 @@ enum CLIStatus {
 }
 
 extension CLIStatus {
-    static func claude(_ data: Data) -> Connection {
+    struct Account {
+        let connection: Connection
+        var plan: String?
+    }
+
+    static func claude(_ data: Data) -> Account {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? Fields,
-              let signedIn = root["loggedIn"] as? Bool else { return .unavailable }
-        guard signedIn else { return .signedOut }
+              let signedIn = root["loggedIn"] as? Bool else { return Account(connection: .unavailable) }
+        guard signedIn else { return Account(connection: .signedOut) }
         let method = (root["authMethod"] as? String ?? "").lowercased()
-        if method == "claude.ai" || root["subscriptionType"] as? String != nil { return .subscription }
-        return .api
+        let subscription = root["subscriptionType"] as? String
+        if method == "claude.ai" || subscription != nil {
+            let tier = (root["planTier"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let tier, !tier.isEmpty, tier.lowercased() != "unknown" {
+                return Account(connection: .subscription, plan: tier)
+            }
+            return Account(connection: .subscription, plan: subscription)
+        }
+        return Account(connection: .api)
     }
 }
 
 extension CLIStatus {
-    static func check(_ provider: Provider, paths: LocalPaths) -> Connection {
-        guard let url = paths.executable(provider.rawValue.lowercased()) else { return .missing }
+    static func check(_ provider: Provider, paths: LocalPaths) -> Account {
+        guard let url = paths.executable(provider.rawValue.lowercased()) else { return Account(connection: .missing) }
         let task = Process()
         let pipe = Pipe()
         var env = paths.environment
@@ -38,17 +50,17 @@ extension CLIStatus {
         task.standardInput = FileHandle.nullDevice
         task.standardOutput = pipe
         task.standardError = provider == .codex ? pipe : FileHandle.nullDevice
-        do { try task.run() } catch { return .unavailable }
+        do { try task.run() } catch { return Account(connection: .unavailable) }
         let deadline = ContinuousClock.now + .seconds(5)
         while task.isRunning && ContinuousClock.now < deadline { Thread.sleep(forTimeInterval: 0.025) }
         if task.isRunning {
             kill(task.processIdentifier, SIGKILL)
             task.waitUntilExit()
-            return .unavailable
+            return Account(connection: .unavailable)
         }
-        guard let data = try? pipe.fileHandleForReading.readToEnd() else { return .unavailable }
+        guard let data = try? pipe.fileHandleForReading.readToEnd() else { return Account(connection: .unavailable) }
         switch provider {
-        case .codex: return codex(String(decoding: data, as: UTF8.self), status: task.terminationStatus)
+        case .codex: return Account(connection: codex(String(decoding: data, as: UTF8.self), status: task.terminationStatus))
         case .claude: return claude(data)
         }
     }
