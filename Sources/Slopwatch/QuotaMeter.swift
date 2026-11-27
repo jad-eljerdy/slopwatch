@@ -3,13 +3,7 @@ import SwiftUI
 struct QuotaMeter: View {
     let window: Limit
     let provider: Provider
-    let activity: Activity
-    let interval: Interval
-    let activityEnd: Date?
     let now: Date
-
-    @State private var showing = false
-    @State private var closeTask: Task<Void, Never>?
 
     let display: LimitDisplay
     let showResets: Bool
@@ -32,33 +26,8 @@ struct QuotaMeter: View {
                     .frame(minWidth: 62, alignment: .trailing)
             }
         }
-        .contentShape(Rectangle())
-        .onHover(perform: hover)
-        .onTapGesture { showing = true }
-        .focusable()
-        .onKeyPress(.return) { showing = true; return .handled }
-        .accessibilityAction { showing = true }
-        .popover(isPresented: $showing, arrowEdge: .trailing) {
-            ModelUsageChart(activity: activity.forLimit(window.title), interval: interval, end: activityEnd,
-                            provider: provider, limit: window)
-                .onHover(perform: hover)
-        }
-        .onDisappear { closeTask?.cancel(); showing = false }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(window.title + " limit")
         .accessibilityValue("\(Int(percent.rounded())) percent \(display.suffix)" + (showResets ? window.reset.map { ", resets " + $0.formatted() } ?? "" : ""))
-    }
-
-    private func hover(_ inside: Bool) {
-        closeTask?.cancel()
-        if inside {
-            showing = true
-        } else {
-            // Allow the pointer to cross the popover arrow before closing it.
-            closeTask = Task {
-                do { try await Task.sleep(for: .milliseconds(190)) } catch { return }
-                showing = false
-            }
-        }
     }
 }

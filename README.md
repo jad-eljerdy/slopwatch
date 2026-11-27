@@ -1,6 +1,6 @@
 # Slopwatch
 
-**[Download Slopwatch v1.2.1 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.2.1/Slopwatch-1.2.1.dmg)**
+**[Download Slopwatch v1.2.2 for Mac (.dmg)](https://github.com/jad-eljerdy/slopwatch/releases/download/v1.2.2/Slopwatch-1.2.2.dmg)**
 
 A native macOS menu bar app that tracks Codex and Claude Code subscription usage.
 
@@ -14,7 +14,7 @@ So I put the numbers next to the clock. Click Slopwatch in the menu bar. Read th
 
 - **Subscription limits.** See how much of each reported five-hour or weekly limit you have left and when it resets. The pill beside each connected provider shows its reported plan. Claude also shows a weekly Fable meter when the account reports a Fable limit.
 - **Banked resets.** A ticket below the provider shows saved resets. Select it to see the grant types and expiration dates. Open the provider’s usage page to confirm redemption.
-- **Token counts.** See the last 12 hours, 24 hours, 7 days, or 30 days. View both providers together or select one. Hover over a bar under **Subscription limits** to see the provider’s local token counts by model for the selected period. The Fable bar shows Fable models. Point at a bar inside the tooltip to inspect its time interval.
+- **Token counts.** See the last 12 hours, 24 hours, 7 days, or 30 days. View both providers together or select one. Rest the pointer on the info button beside a provider to see the graph, token counts, and shares for all its models in the selected period. Click the same button to open source details.
 - **API value.** See what the tokens would cost at standard API prices. If a model has no published rate in the catalog, its tokens still count. A plus sign marks the partial estimate.
 
 The app uses SwiftUI and AppKit. Usage history stays on your Mac. There is no Slopwatch account, backend, or telemetry.

@@ -4,6 +4,9 @@ struct Dashboard: View {
     let model: DashboardModel
     let openSettings: () -> Void
     @State private var detail: Provider?
+    @State private var hoveredInfo: Provider?
+    @State private var hoveredChart: Provider?
+    @State private var tooltip: Provider?
 
     var body: some View {
         Group {
@@ -42,8 +45,12 @@ struct Dashboard: View {
                 ForEach(visibleProviders) { provider in
                     if provider != visibleProviders.first { Divider() }
                     ProviderCard(provider: provider, report: model.snapshot.reports[provider] ?? ProviderReport(),
-                        interval: model.interval, activityEnd: model.snapshot.updated, now: Date(), loading: model.snapshot.updated == nil, settings: model.settings,
-                        pageBalance: provider == .claude ? model.claudePage.balance : nil) { detail = provider }
+                        now: Date(), loading: model.snapshot.updated == nil, settings: model.settings,
+                        pageBalance: provider == .claude ? model.claudePage.balance : nil,
+                        infoHover: { inside in
+                            if inside { hoveredInfo = provider }
+                            else if hoveredInfo == provider { hoveredInfo = nil }
+                        }) { clearTooltip(); detail = provider }
                 }
                 if visibleProviders.isEmpty {
                     Text("No connected subscriptions.")
@@ -53,6 +60,39 @@ struct Dashboard: View {
             Divider()
             DashboardFooter(model: model, openSettings: openSettings)
         }.padding(16)
+        .overlayPreferenceValue(ProviderInfoBounds.self) { anchors in
+            if let tooltip, let anchor = anchors[tooltip] {
+                GeometryReader { geometry in
+                    let button = geometry[anchor]
+                    Color.clear.allowsHitTesting(false)
+                        .overlay(alignment: .topLeading) {
+                            ModelUsageChart(activity: model.snapshot.activity(model.interval, provider: tooltip),
+                                            interval: model.interval, provider: tooltip)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .onHover { inside in
+                                    if inside { hoveredChart = tooltip }
+                                    else if hoveredChart == tooltip { hoveredChart = nil }
+                                }
+                                .alignmentGuide(.leading) { size in -max(4, button.minX - size.width - 4) }
+                                .alignmentGuide(.top) { size in -max(4, button.maxY - size.height) }
+                        }
+                }
+            }
+        }
+        .task(id: hoveredInfo ?? hoveredChart) {
+            let target = hoveredInfo ?? hoveredChart
+            guard target != tooltip else { return }
+            do { try await Task.sleep(for: .milliseconds(target == nil ? 400 : 220)) } catch { return }
+            tooltip = target
+        }
+        .onChange(of: model.provider) { clearTooltip() }
+        .onDisappear { clearTooltip() }
+    }
+
+    private func clearTooltip() {
+        hoveredInfo = nil
+        hoveredChart = nil
+        tooltip = nil
     }
 
     private var visibleProviders: [Provider] {
@@ -63,4 +103,11 @@ struct Dashboard: View {
     }
 
     private var activity: Activity { model.snapshot.activity(model.interval, provider: model.provider) }
+}
+
+struct ProviderInfoBounds: PreferenceKey {
+    static var defaultValue: [Provider: Anchor<CGRect>] { [:] }
+    static func reduce(value: inout [Provider: Anchor<CGRect>], nextValue: () -> [Provider: Anchor<CGRect>]) {
+        value.merge(nextValue()) { _, new in new }
+    }
 }

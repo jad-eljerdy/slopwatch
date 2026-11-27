@@ -3,12 +3,7 @@ import SwiftUI
 struct ModelUsageChart: View {
     let activity: Activity
     let interval: Interval
-    let end: Date?
     let provider: Provider
-    let limit: Limit
-
-    @State private var selected: Int?
-    @FocusState private var focused: Bool
 
     private struct Series: Identifiable {
         let id: String
@@ -39,7 +34,7 @@ struct ModelUsageChart: View {
         let totals = activity.bins
         VStack(spacing: 7) {
             HStack {
-                Text(provider.rawValue + " · " + limit.title).font(.headline)
+                Text(provider.rawValue + " usage").font(.headline)
                 Spacer()
                 Text(interval.label).font(.caption.weight(.semibold))
             }.foregroundStyle(.white)
@@ -50,117 +45,76 @@ struct ModelUsageChart: View {
             }.font(.caption).foregroundStyle(.white)
             plot(series: series, totals: totals)
                 .frame(height: 54)
-                .focusable().focused($focused)
-                .onMoveCommand { direction in
-                    switch direction {
-                    case .left: select((selected ?? totals.count) - 1)
-                    case .right: select((selected ?? -1) + 1)
-                    default: break
-                    }
-                }
-                .onExitCommand { selected = nil }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Model token usage over " + interval.durationLabel)
-                .accessibilityValue(accessibilityValue(series))
-                .accessibilityAdjustableAction { direction in
-                    select(direction == .increment ? (selected ?? -1) + 1 : (selected ?? totals.count) - 1)
-                }
+                .accessibilityHidden(true)
             HStack {
-                if let selected, let end {
-                    Text(timeLabel(index: selected, end: end)).monospacedDigit()
-                } else {
-                    Text(interval.durationLabel + " ago")
-                    Spacer()
-                    Text("Now")
-                }
+                Text(interval.durationLabel + " ago")
+                Spacer()
+                Text("Now")
             }.frame(maxWidth: .infinity, alignment: .leading).font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.68))
-            breakdown(series: series, index: selected)
+            breakdown(series: series)
         }
         .padding(12)
         .frame(width: 296)
-        .background(Palette.ink)
-        .onChange(of: focused) { if !focused { selected = nil } }
-    }
-
-    private func select(_ index: Int) {
-        selected = min(max(0, index), Activity.binCount - 1)
+        .background(Palette.ink, in: RoundedRectangle(cornerRadius: 10))
+        .shadow(color: .black.opacity(0.2), radius: 6, y: 2)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("usage-tooltip-" + provider.rawValue)
     }
 
     private func plot(series: [Series], totals: [Int]) -> some View {
-        GeometryReader { proxy in
-            Canvas { context, size in
-                let step = size.width / CGFloat(totals.count)
-                let peak = CGFloat(max(1, totals.max() ?? 1))
-                for level in [0.0, 0.5, 1.0] {
-                    let y = (size.height - 1) * level
-                    var line = Path()
-                    line.move(to: CGPoint(x: 0, y: y))
-                    line.addLine(to: CGPoint(x: size.width, y: y))
-                    context.stroke(line, with: .color(Palette.grid), style: StrokeStyle(lineWidth: 0.7, dash: [2, 3]))
-                }
-                for i in totals.indices {
-                    let x = CGFloat(i) * step
-                    if selected == i {
-                        let lane = CGRect(x: x, y: 0, width: step, height: size.height)
-                        context.fill(Path(roundedRect: lane, cornerRadius: 3), with: .color(.white.opacity(0.15)))
-                    }
-                    guard totals[i] > 0 else { continue }
-                    let height = max(2, size.height * CGFloat(totals[i]) / peak)
-                    let bar = CGRect(x: x + 1.5, y: size.height - height, width: max(1, step - 3), height: height)
-                    context.drawLayer { layer in
-                        layer.clip(to: Path(roundedRect: bar, cornerRadius: 2.5))
-                        layer.opacity = selected == nil || selected == i ? 1 : 0.55
-                        var y = bar.maxY
-                        for model in series where model.counts[i] > 0 {
-                            let part = height * CGFloat(model.counts[i]) / CGFloat(totals[i])
-                            y -= part
-                            layer.fill(Path(CGRect(x: bar.minX, y: y, width: bar.width, height: part)), with: .color(model.color))
-                        }
-                    }
-                }
+        Canvas { context, size in
+            let step = size.width / CGFloat(totals.count)
+            let peak = CGFloat(max(1, totals.max() ?? 1))
+            for level in [0.0, 0.5, 1.0] {
+                let y = (size.height - 1) * level
+                var line = Path()
+                line.move(to: CGPoint(x: 0, y: y))
+                line.addLine(to: CGPoint(x: size.width, y: y))
+                context.stroke(line, with: .color(Palette.grid), style: StrokeStyle(lineWidth: 0.7, dash: [2, 3]))
             }
-            .contentShape(Rectangle())
-            .onContinuousHover { phase in
-                if case let .active(point) = phase, proxy.size.width > 0 {
-                    select(Int(point.x / proxy.size.width * CGFloat(totals.count)))
-                } else if case .ended = phase { selected = nil }
+            for i in totals.indices {
+                let x = CGFloat(i) * step
+                guard totals[i] > 0 else { continue }
+                let height = max(2, size.height * CGFloat(totals[i]) / peak)
+                let bar = CGRect(x: x + 1.5, y: size.height - height, width: max(1, step - 3), height: height)
+                context.drawLayer { layer in
+                    layer.clip(to: Path(roundedRect: bar, cornerRadius: 2.5))
+                    var y = bar.maxY
+                    for model in series where model.counts[i] > 0 {
+                        let part = height * CGFloat(model.counts[i]) / CGFloat(totals[i])
+                        y -= part
+                        layer.fill(Path(CGRect(x: bar.minX, y: y, width: bar.width, height: part)), with: .color(model.color))
+                    }
+                }
             }
         }
     }
 
-    private func timeLabel(index: Int, end: Date) -> String {
-        let duration = interval.seconds / Double(Activity.binCount)
-        let start = end.addingTimeInterval(-interval.seconds + Double(index) * duration)
-        return (start..<start.addingTimeInterval(duration)).formatted(.interval.month(.abbreviated).day().hour().minute())
-    }
-
-    private func breakdown(series: [Series], index: Int?) -> some View {
+    private func breakdown(series: [Series]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             if series.isEmpty {
                 Text("No recorded tokens").font(.caption).foregroundStyle(.white.opacity(0.7))
             } else {
                 ViewThatFits(in: .vertical) {
-                    rows(series: series, index: index)
-                    ScrollView { rows(series: series, index: index) }
+                    rows(series: series)
+                    ScrollView { rows(series: series) }
                 }
                 .frame(maxHeight: 150)
                 .fixedSize(horizontal: false, vertical: true)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
         .foregroundStyle(.white)
-        .background(.white.opacity(0.065), in: RoundedRectangle(cornerRadius: 8))
     }
 
-    private func rows(series: [Series], index: Int?) -> some View {
+    private func rows(series: [Series]) -> some View {
         let ranked = series.sorted { a, b in
             return a.total == b.total ? a.id < b.id : a.total > b.total
         }
         return Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 5) {
             GridRow {
                 Text("Model")
-                Text(index == nil ? "Share" : "Bar tokens").gridColumnAlignment(.trailing)
+                Text("Share").gridColumnAlignment(.trailing)
                 Text(interval.label + " tokens").gridColumnAlignment(.trailing)
             }.font(.system(size: 10)).foregroundStyle(.white.opacity(0.65))
             ForEach(ranked) { model in
@@ -169,22 +123,10 @@ struct ModelUsageChart: View {
                         Circle().fill(model.color).frame(width: 6, height: 6)
                         Text(verbatim: model.id).lineLimit(2).truncationMode(.middle)
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                    if let index {
-                        Text(Display.tokens(model.counts[index]))
-                    } else {
-                        Text((Double(model.total) / Double(max(1, activity.tokens))).formatted(.percent.precision(.fractionLength(0...1))))
-                    }
+                    Text((Double(model.total) / Double(max(1, activity.tokens))).formatted(.percent.precision(.fractionLength(0...1))))
                     Text(Display.tokens(model.total))
                 }.font(.system(size: 11, weight: .medium)).monospacedDigit()
             }
         }
-    }
-
-    private func accessibilityValue(_ series: [Series]) -> String {
-        if let selected, let end {
-            let counts = series.map { "\($0.id), \($0.counts[selected]) tokens" }
-            return ([timeLabel(index: selected, end: end)] + counts).joined(separator: ". ")
-        }
-        return series.isEmpty ? "No recorded tokens" : series.map { "\($0.id), \($0.total) tokens" }.joined(separator: ". ")
     }
 }

@@ -3,12 +3,11 @@ import SwiftUI
 struct ProviderCard: View {
     let provider: Provider
     let report: ProviderReport
-    let interval: Interval
-    let activityEnd: Date?
     let now: Date
     let loading: Bool
     let settings: SettingsPreferences
     let pageBalance: ClaudePageBalance?
+    let infoHover: (Bool) -> Void
     let details: () -> Void
 
     var body: some View {
@@ -26,14 +25,17 @@ struct ProviderCard: View {
                 }
                 Spacer(minLength: 2)
                 Text(report.connection.rawValue).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
-                Button(action: details) { Image(systemName: "info.circle") }
+                Button(action: details) {
+                    Image(systemName: "info.circle").frame(width: 20, height: 20).contentShape(Rectangle())
+                }
                     .buttonStyle(.plain).foregroundStyle(.secondary).accessibilityLabel(provider.rawValue + " source details")
+                    .onHover(perform: infoHover)
+                    .anchorPreference(key: ProviderInfoBounds.self, value: .bounds) { [provider: $0] }
             }
             let windows = report.quota.windows.filter { $0.isCurrent(at: now) }
             if !windows.isEmpty && report.connection == .subscription {
                 ForEach(Array(windows.enumerated()), id: \.offset) { _, window in
-                    QuotaMeter(window: window, provider: provider, activity: report.periods[interval] ?? Activity(),
-                               interval: interval, activityEnd: activityEnd, now: now, display: settings.display, showResets: settings.showResets)
+                    QuotaMeter(window: window, provider: provider, now: now, display: settings.display, showResets: settings.showResets)
                 }
             } else {
                 Text(statusText).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)

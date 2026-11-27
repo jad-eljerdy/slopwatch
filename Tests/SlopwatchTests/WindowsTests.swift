@@ -93,13 +93,18 @@ import Testing
     #expect((day + day).modelBins["fable"]?[23] == 10)
 }
 
-@Test func modelScopedMeterShowsOnlyItsFamilyInTheSelectedPeriod() {
-    var activity = Activity()
-    for (model, count) in [("claude-fable-5-2", 7), ("claude-fable-5-1", 3), ("claude-opus-5", 20)] {
-        activity.add(UsageEvent(id: model, time: Date(), model: model, tokens: Tokens(input: count)), bin: 12, price: nil)
-    }
-    #expect(activity.forLimit("Weekly").tokens == 30)
-    #expect(activity.forLimit("Fable").bins[12] == 10)
-    #expect(activity.forLimit("Fable").modelBins.count == 2)
-    #expect(activity.forLimit("Weekly · Sonnet").modelBins.isEmpty)
+@Test func providerTooltipIncludesEveryModelForTheSelectedPeriod() {
+    let now = Date()
+    let events = [
+        UsageEvent(id: "f", time: now, model: "claude-fable", tokens: Tokens(input: 7)),
+        UsageEvent(id: "o", time: now, model: "claude-opus", tokens: Tokens(input: 3)),
+        UsageEvent(id: "old", time: now.addingTimeInterval(-86400), model: "claude-sonnet", tokens: Tokens(input: 11))
+    ]
+    let report = ProviderReport(periods: Activity.rollup(Dictionary(uniqueKeysWithValues: events.map { ($0.id, $0) }).values,
+                                                        now: now, prices: .standard))
+    let snapshot = Snapshot(reports: [.claude: report, .codex: ProviderReport(periods: [.day: Activity(tokens: 8)])])
+    let day = snapshot.activity(.day, provider: .claude)
+    #expect(Set(day.modelBins.keys) == ["claude-fable", "claude-opus"])
+    #expect(day.tokens == 10)
+    #expect(snapshot.activity(.week, provider: .claude).tokens == 21)
 }
