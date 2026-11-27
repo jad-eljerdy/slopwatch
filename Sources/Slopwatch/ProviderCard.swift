@@ -3,6 +3,8 @@ import SwiftUI
 struct ProviderCard: View {
     let provider: Provider
     let report: ProviderReport
+    let interval: Interval
+    let activityEnd: Date?
     let now: Date
     let loading: Bool
     let settings: SettingsPreferences
@@ -30,7 +32,8 @@ struct ProviderCard: View {
             let windows = report.quota.windows.filter { $0.isCurrent(at: now) }
             if !windows.isEmpty && report.connection == .subscription {
                 ForEach(Array(windows.enumerated()), id: \.offset) { _, window in
-                    QuotaMeter(window: window, provider: provider, now: now, display: settings.display, showResets: settings.showResets)
+                    QuotaMeter(window: window, provider: provider, activity: report.periods[interval] ?? Activity(),
+                               interval: interval, activityEnd: activityEnd, now: now, display: settings.display, showResets: settings.showResets)
                 }
             } else {
                 Text(statusText).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)

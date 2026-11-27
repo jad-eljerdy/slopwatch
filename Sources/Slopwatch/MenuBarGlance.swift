@@ -45,10 +45,13 @@ struct MenuBarReading {
         func line(_ name: String) -> MenuBarLine {
             MenuBarLine(name: name, limit: current.first { $0.title == name })
         }
+        let fiveHour = line("5-hour")
+        let upper = provider == .claude && report?.planLabel == "Ultra" && fiveHour.limit == nil
+            ? line("Fable") : fiveHour
         switch window {
-        case .fiveHour: lines = [line("5-hour")]
+        case .fiveHour: lines = [upper]
         case .weekly: lines = [line("Weekly")]
-        case .stacked: lines = [line("5-hour"), line("Weekly")]
+        case .stacked: lines = [upper, line("Weekly")]
         case .lowest:
             let limit = current.max { $0.used < $1.used }
             lines = [MenuBarLine(name: limit?.title ?? "Limit", limit: limit)]

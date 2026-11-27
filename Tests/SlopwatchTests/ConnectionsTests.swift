@@ -48,3 +48,18 @@ import Testing
         #expect(report.planLabel == nil)
     }
 }
+
+@Test func claudeUsesThePlanNameFromTheSignedInOrganization() throws {
+    let file = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: file) }
+    let auth = Data(#"{"loggedIn":true,"authMethod":"claude.ai","email":"a@example.test","orgId":"one","planTier":"max_5x","subscriptionType":"max"}"#.utf8)
+    func check(_ email: String, _ org: String, _ name: String) throws -> String? {
+        let profile = ["emailAddress": email, "organizationUuid": org, "planDisplayName": name]
+        try JSONSerialization.data(withJSONObject: ["oauthAccount": profile]).write(to: file)
+        return CLIStatus.claude(auth, configs: [file]).plan
+    }
+    #expect(try check("A@example.test", "one", "Ultra") == "Ultra")
+    #expect(try check("other@example.test", "one", "Ultra") == "max_5x")
+    #expect(try check("a@example.test", "other", "Ultra") == "max_5x")
+    #expect(try check("a@example.test", "one", " ") == "max_5x")
+}

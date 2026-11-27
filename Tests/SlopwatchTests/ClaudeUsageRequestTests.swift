@@ -50,9 +50,9 @@ private let reply = #"{"type":"control_response","response":{"subtype":"success"
     let legacy: Fields = ["display_name": "Fable", "utilization": 42.5, "resets_at": 2000]
     let usage: Fields = ["seven_day": ["utilization": 77], "limits": [fable], "model_scoped": [legacy]]
     let reading = try #require(ClaudeQuota.parse(usage, observed: now))
-    #expect(reading.windows.map(\.title) == ["Weekly", "Weekly · Fable"])
-    #expect(reading.windows.map(\.used) == [77, 0])
-    #expect(reading.windows.last?.isCurrent(at: Date(timeIntervalSince1970: 2000)) == false)
+    #expect(reading.windows.map(\.title) == ["Fable", "Weekly"])
+    #expect(reading.windows.map(\.used) == [0, 77])
+    #expect(reading.windows.first?.isCurrent(at: Date(timeIntervalSince1970: 2000)) == false)
     #expect(ClaudeQuota.parse(["model_scoped": [legacy]], observed: now)?.windows.first?.used == 42.5)
     let otherLimits: Fields = ["limits": [["kind": "weekly_all", "percent": 55]],
                                "model_scoped": [["display_name": "Opus", "utilization": 30]]]

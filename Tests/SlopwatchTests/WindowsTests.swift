@@ -92,3 +92,14 @@ import Testing
     #expect(day.modelBins["opus"]?[23] == 0)
     #expect((day + day).modelBins["fable"]?[23] == 10)
 }
+
+@Test func modelScopedMeterShowsOnlyItsFamilyInTheSelectedPeriod() {
+    var activity = Activity()
+    for (model, count) in [("claude-fable-5-2", 7), ("claude-fable-5-1", 3), ("claude-opus-5", 20)] {
+        activity.add(UsageEvent(id: model, time: Date(), model: model, tokens: Tokens(input: count)), bin: 12, price: nil)
+    }
+    #expect(activity.forLimit("Weekly").tokens == 30)
+    #expect(activity.forLimit("Fable").bins[12] == 10)
+    #expect(activity.forLimit("Fable").modelBins.count == 2)
+    #expect(activity.forLimit("Weekly · Sonnet").modelBins.isEmpty)
+}

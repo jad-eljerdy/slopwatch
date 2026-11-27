@@ -45,3 +45,18 @@ extension Activity {
              modelBins: lhs.modelBins.merging(rhs.modelBins) { zip($0, $1).map(+) })
     }
 }
+
+extension Activity {
+    // Scoped quota rows show the matching model family in the selected history period.
+    func forLimit(_ title: String) -> Self {
+        let family: String
+        switch title {
+        case "Fable": family = "fable"
+        case "Weekly · Opus": family = "opus"
+        case "Weekly · Sonnet": family = "sonnet"
+        default: return self
+        }
+        let matching = modelBins.filter { $0.key.lowercased().split(separator: "-").contains(Substring(family)) }
+        return Self(tokens: matching.values.reduce(0) { $0 + $1.reduce(0, +) }, modelBins: matching)
+    }
+}

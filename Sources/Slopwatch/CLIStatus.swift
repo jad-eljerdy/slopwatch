@@ -17,13 +17,17 @@ extension CLIStatus {
         var plan: String?
     }
 
-    static func claude(_ data: Data) -> Account {
+    static func claude(_ data: Data, configs: [URL] = []) -> Account {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? Fields,
               let signedIn = root["loggedIn"] as? Bool else { return Account(connection: .unavailable) }
         guard signedIn else { return Account(connection: .signedOut) }
         let method = (root["authMethod"] as? String ?? "").lowercased()
         let subscription = root["subscriptionType"] as? String
         if method == "claude.ai" || subscription != nil {
+            if let plan = profilePlan(auth: root, configs: configs) {
+                return Account(connection: .subscription, plan: plan)
+            }
+            if subscription?.lowercased() == "ultra" { return Account(connection: .subscription, plan: subscription) }
             let tier = (root["planTier"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
             if let tier, !tier.isEmpty, tier.lowercased() != "unknown" {
                 return Account(connection: .subscription, plan: tier)
@@ -31,6 +35,22 @@ extension CLIStatus {
             return Account(connection: .subscription, plan: subscription)
         }
         return Account(connection: .api)
+    }
+
+    private static func profilePlan(auth: Fields, configs: [URL]) -> String? {
+        guard let email = auth["email"] as? String, !email.isEmpty,
+              let org = auth["orgId"] as? String, !org.isEmpty else { return nil }
+        for url in configs {
+            guard let data = try? Data(contentsOf: url),
+                  let root = try? JSONSerialization.jsonObject(with: data) as? Fields else { continue }
+            let profile = root.object("oauthAccount")
+            guard (profile["emailAddress"] as? String)?.caseInsensitiveCompare(email) == .orderedSame,
+                  profile["organizationUuid"] as? String == org,
+                  let name = (profile["planDisplayName"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !name.isEmpty, name.lowercased() != "unknown" else { continue }
+            return name
+        }
+        return nil
     }
 }
 
@@ -61,7 +81,7 @@ extension CLIStatus {
         guard let data = try? pipe.fileHandleForReading.readToEnd() else { return Account(connection: .unavailable) }
         switch provider {
         case .codex: return Account(connection: codex(String(decoding: data, as: UTF8.self), status: task.terminationStatus))
-        case .claude: return claude(data)
+        case .claude: return claude(data, configs: paths.claudeConfigs)
         }
     }
 }

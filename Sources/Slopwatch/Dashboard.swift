@@ -42,7 +42,7 @@ struct Dashboard: View {
                 ForEach(visibleProviders) { provider in
                     if provider != visibleProviders.first { Divider() }
                     ProviderCard(provider: provider, report: model.snapshot.reports[provider] ?? ProviderReport(),
-                        now: Date(), loading: model.snapshot.updated == nil, settings: model.settings,
+                        interval: model.interval, activityEnd: model.snapshot.updated, now: Date(), loading: model.snapshot.updated == nil, settings: model.settings,
                         pageBalance: provider == .claude ? model.claudePage.balance : nil) { detail = provider }
                 }
                 if visibleProviders.isEmpty {

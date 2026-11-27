@@ -61,3 +61,28 @@ import Testing
     #expect(MenuBarGlyph(initial) == MenuBarGlyph(renewed))
     #expect(MenuBarGlyph(initial) != MenuBarGlyph(reading(used: 22, resetIn: 300)))
 }
+
+@Test func ultraUsesFableForTheUpperReadingOnlyWhenFiveHourIsUnavailable() {
+    let now = Date()
+    func limit(_ name: String, _ used: Double, _ seconds: Double) -> Limit {
+        Limit(title: name, used: used, reset: now.addingTimeInterval(seconds), observed: now)
+    }
+    let fable = limit("Fable", 65, 200)
+    let weekly = limit("Weekly", 12, 250)
+    var report = ProviderReport(quota: Quota(windows: [fable, weekly], plan: "Ultra"), connection: .subscription)
+    func reading(_ mode: MenuBarWindow) -> MenuBarReading {
+        MenuBarReading(provider: .claude, report: report, window: mode, now: now)
+    }
+    #expect(reading(.stacked).lines.map(\.limit?.used) == [65, 12])
+    #expect(reading(.fiveHour).lines.first?.name == "Fable")
+    #expect(reading(.weekly).lines.first?.limit?.used == 12)
+    report.quota.windows.append(limit("5-hour", 10, 5))
+    #expect(reading(.stacked).lines.map(\.limit?.used) == [10, 12])
+    let later = MenuBarReading(provider: .claude, report: report, window: .stacked, now: now.addingTimeInterval(5))
+    #expect(later.lines.map(\.limit?.used) == [65, 12])
+    report.quota.windows = [limit("Fable", 65, -1), weekly]
+    #expect(reading(.stacked).lines.map(\.limit?.used) == [nil, 12])
+    report.quota.plan = "max"
+    report.quota.windows = [fable, weekly]
+    #expect(reading(.fiveHour).lines.first?.limit == nil)
+}

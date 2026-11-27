@@ -22,7 +22,9 @@ extension ClaudeQuota {
             let reset = timestamp(w["resets_at"]) ?? w.number("resets_at").map(Date.init(timeIntervalSince1970:))
             return Limit(title: title, used: used, reset: reset, observed: observed)
         }
-        if let fable = fableLimit(fields, observed: observed) { windows.append(fable) }
+        if let fable = fableLimit(fields, observed: observed) {
+            windows.insert(fable, at: windows.first?.title == "5-hour" ? 1 : 0)
+        }
         let resets = BankedResets.claude(fields.object("cedar_ember"), now: observed)
         guard !windows.isEmpty || resets != nil else { return nil }
         return Quota(observed: observed, windows: windows, bankedResets: resets)
@@ -32,7 +34,7 @@ extension ClaudeQuota {
         func limit(_ row: Fields, percent: String) -> Limit? {
             guard let used = row.number(percent), (0...100).contains(used) else { return nil }
             let reset = timestamp(row["resets_at"]) ?? row.number("resets_at").map(Date.init(timeIntervalSince1970:))
-            return Limit(title: "Weekly · Fable", used: used, reset: reset, observed: observed)
+            return Limit(title: "Fable", used: used, reset: reset, observed: observed)
         }
 
         for row in fields["limits"] as? [Fields] ?? [] where row["kind"] as? String == "weekly_scoped" {
